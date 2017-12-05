@@ -53,6 +53,15 @@ h2 {
 
 /* App */
 
+video {
+	/* Can't use display: none because it will stop rendering from taking place
+	 * and therefore canvas won't get frame data. Just make it fixed and invisible */
+	width: 10px;
+	height: 10px;
+	position: fixed;
+	opacity: 0;
+}
+
 canvas {
 	width: 640px;
 	height: 480px;

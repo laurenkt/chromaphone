@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', _ => {
 	const video = document.createElement('video')
 	video.autoplay    = true
 	video.playsinline = true
-	video.className   = 'video-source'
 	body.appendChild(video)
 
 	const sonifier = new Sonifier(3072)

@@ -18,7 +18,7 @@ export default class Sonifier {
 
 		// Set-up
 		this._scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
-		//TODO UNCOMMENT this._scriptNode.connect(Tone.context.destination)
+		//this._scriptNode.connect(Tone.context.destination)
 	}
 
 	readBufferProcessEvent(e) {
