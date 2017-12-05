@@ -4,10 +4,11 @@
 			"targets": {
 				"node": "current"
 			}
-		}]
+		}],
+		"react"
 	],
 	plugins: [
 		"transform-object-rest-spread",
-		"babel-plugin-lodash"
+		"babel-plugin-lodash",
 	]
 }

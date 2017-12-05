@@ -5,21 +5,38 @@ import Monitor     from './Monitor.js'
 import VideoSource from './VideoSource.js' 
 
 class UI extends React.Component {
+	constructor(props) {
+		super(props)
+	}
 
+	render() {
+		return (
+			<canvas ref={this.props.onViewportCanvasCreated}></canvas>
+		)
+	}
 }
 
 // Don't add charts until page has loaded
 document.addEventListener('DOMContentLoaded', _ => {
-	const sonifier = new Sonifier(3072)
+	const body = document.querySelector('body')
 
-	const videoSource = new VideoSource(
-		document.querySelector('video'),
-		document.querySelector('canvas#video'),
-		sonifier.targets.buffer
-	)
+	const video = document.createElement('video')
+	video.autoplay    = true
+	video.playsinline = true
+	video.className   = 'video-source'
+	body.appendChild(video)
+
+	const sonifier = new Sonifier(3072)
+	let videoSource
+
+	const reactRoot = document.createElement('div')
+	render(<UI onViewportCanvasCreated={el => {
+		videoSource = new VideoSource(video, el, sonifier.targets.buffer)
+	}}/>, reactRoot)
+	document.querySelector('body').appendChild(reactRoot)
 
 	sonifier.start()
 
-	const monitor = new Monitor(document.getElementById('graph'), sonifier.targets.buffer)
+	//const monitor = new Monitor(document.getElementById('graph'), sonifier.targets.buffer)
 })
 

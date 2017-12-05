@@ -49,6 +49,7 @@ export default class VideoSource {
 	}
 
 	nextFrame() {
+		console.log('next frame')
 		this._canvas.width  = this._video.videoWidth/10
 		this._canvas.height = this._video.videoHeight/10
 		this._context.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
