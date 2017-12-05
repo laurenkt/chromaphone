@@ -107,69 +107,6 @@ document.addEventListener('DOMContentLoaded', _ => {
 
 	sonifier.start()
 
-		/*
-	// This gives us the actual ArrayBuffer that contains the data
-	var nowBuffering = buffer.getChannelData(0)
-	for (var i = 0; i < buffer.length; i++) {
-		// Math.random() is in [0; 1.0]
-		// audio needs to be in [-1.0; 1.0]
-		nowBuffering[i] = Math.random() * 2 - 1
-	}*/
-
-		/*
-	// Get an AudioBufferSourceNode.
-	// This is the AudioNode to use when we want to play an AudioBuffer
-	var source = audioCtx.createBufferSource()
-	source.loop = true
-	// set the buffer in the AudioBufferSourceNode
-	source.buffer = buffer
-
-	var scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
-
-
-	let idx = 0
-	const mask = buffer.length - 1
-	scriptNode.onaudioprocess = function(audioProcessingEvent) {
-		// The input buffer is the song we loaded earlier
-		var inputBuffer = audioProcessingEvent.inputBuffer;
-
-		// The output buffer contains the samples that will be modified and played
-		var outputBuffer = audioProcessingEvent.outputBuffer;
-
-		// Loop through the output channels (in this case there is only one)
-		for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
-			var inputData = inputBuffer.getChannelData(channel);
-			var outputData = outputBuffer.getChannelData(channel);
-
-			// Loop through the 4096 samples
-			for (var sample = 0; sample < inputBuffer.length; sample++) {
-				// make output equal to the same as the input
-				outputData[sample] = outputData[sample] + (targetBuffer[idx] - outputData[sample])/2;
-				outputBuffer[idx]  = outputData[sample];
-
-				idx = (idx+1) & mask
-			}
-			
-		}
-	}
-
-	const LPF = audioCtx.createBiquadFilter()
-	LPF.type = 'lowpass'
-	LPF.frequency.value = 3000
-	LPF.gain.value = 1
-
-	const LPF2 = audioCtx.createBiquadFilter()
-	LPF2.type = 'lowpass'
-	LPF2.frequency.value = 4000
-	LPF2.gain.value = 1
-
-	LPF2.connect(audioCtx.destination)
-	LPF.connect(LPF2)
-	scriptNode.connect(LPF)
-	source.connect(scriptNode)
-	// start the source playing
-	source.start()*/
-
 	const monitor = new Monitor(document.getElementById('graph'), sonifier.targets.buffer)
 })
 
