@@ -1,13 +1,14 @@
 body {
-	margin: 50px;
+	margin: 0;
 	padding: 0;
 	font-family: sans-serif;
 	font-size: 13pt;
 	line-height: 1.6;
-	background: white;
+	background: black;
 	max-width: 1600px;
 	box-sizing: border-box;
 	text-align: center;
+	color: white;
 }
 
 /*
@@ -53,6 +54,10 @@ h2 {
 
 /* App */
 
+.ui {
+	position: relative;
+}
+
 video {
 	/* Can't use display: none because it will stop rendering from taking place
 	 * and therefore canvas won't get frame data. Just make it fixed and invisible */
@@ -63,7 +68,10 @@ video {
 }
 
 canvas {
-	width: 640px;
-	height: 480px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
 	image-rendering: pixelated;
 }

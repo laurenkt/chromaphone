@@ -5,6 +5,7 @@
 				"node": "current"
 			}
 		}],
+		"stage-2",
 		"react"
 	],
 	plugins: [

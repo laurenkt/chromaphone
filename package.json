@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rm -rf ./dist; mkdir dist && cpx src/{index.html,style.css} dist && webpack",
-    "start": "webpack-dev-server --open --https",
+    "start": "webpack-dev-server --open",
     "watch": "rm -rf ./dist; webpack && (cpx \"src/{index.html,style.css}\" dist --watch &) && npm start"
   },
   "repository": {
@@ -25,13 +25,16 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
     "cpx": "^1.5.0",
+    "create-react-class": "^15.6.2",
     "d3": "^4.10.0",
     "dsv-loader": "^2.0.0",
     "eslint": "^4.3.0",
     "lodash": "^4.17.4",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-slider": "^0.9.0",
     "tone": "^0.11.11",
     "webpack": "^3.4.0",
     "webpack-dev-server": "^2.6.1",

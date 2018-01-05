@@ -16,15 +16,16 @@ export default class VideoSource {
 
 	handleSuccess(stream) {
 		var videoTracks = stream.getVideoTracks()
-		console.log('Got stream')
 		console.log('Using video device: ' + videoTracks[0].label)
-		stream.oninactive = function() {
-			console.log('Stream inactive')
-		}
 		this._video.onplaying = () => {
+			// Scale into two rectangles to make Hilbert Curve easier to compute
+
+			this._canvas.height = Math.sqrt(this.buffer.length / 2)
+			this._canvas.width = this._canvas.height * 2
+
 			setInterval(this.nextFrame.bind(this), 16)
 		}
-		this._video.onplay = () => console.log('video play')
+		//this._video.onplay = () => console.log('video play')
 		this._video.srcObject = stream
 		this._context = this._canvas.getContext('2d')
 	}
@@ -49,9 +50,7 @@ export default class VideoSource {
 	}
 
 	nextFrame() {
-		console.log('next frame')
-		this._canvas.width  = this._video.videoWidth/10
-		this._canvas.height = this._video.videoHeight/10
+
 		this._context.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
 		const image_data = this._context.getImageData(0, 0, this._canvas.width, this._canvas.height).data
 		let idx = 0
@@ -78,15 +77,18 @@ export default class VideoSource {
 				}
 				/* should do lightness and sat */
 				// scale between -1 and 1
-				this.buffer[idx++] = (hue - 180) / 360
+				//this.buffer[idx++] = (hue - 180) / 360
 			}
-			else
-				this.buffer[idx++] = 0
+			else {
+				//this.buffer[idx++] = 0
+			}
+
+			this.buffer[idx++] = (r+g+b)/768
 			// ignore alpha
 			//
 			
-			if (idx >= 3072)
-				idx -= 3072
+			if (idx >= this.buffer.length)
+				idx -= this.buffer.length
 		}
 	}
 
