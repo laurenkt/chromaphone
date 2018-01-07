@@ -1,5 +1,6 @@
 export default function generateStereoHilbertCurveOfSize(size) {
 	let xs = new Float32Array(size)
+	xs.fill(NaN)
 	const n = size/2
 	const width = Math.sqrt(n)
 
@@ -7,34 +8,23 @@ export default function generateStereoHilbertCurveOfSize(size) {
 		for (let x = 0; x < width; x += 2) {
 			const i = y*width + x
 
-			xs.buffer[i]         = i+1
-			xs.buffer[i+1]       = i+width+1
-			xs.buffer[i+width]   = i
-			xs.buffer[i+width+1] = i+width+2
+			xs[i]         = i+1
+			xs[i+1]       = i+width+1
+			xs[i+width]   = i
+			xs[i+width+1] = NaN//i+width+2
 		}
-	}
-
-	for (let y = 0; y < width; y += 4) {
-		for (let x = 0; x < width; x += 4) {
-			const i = y*width + x
-			
-			xs.buffer[i+width+width+width+1] = i+width
-			xs.buffer[i+width+3] = i+width+width+width+2
-		}
-
-		xs.buffer[(y+4)*width - 1] = (y+7)*width
 	}
 
 	function swap(i1, i2) {
-		const tmp = xs.buffer[i1]
-		xs.buffer[i1] = xs.buffer[i2]
-		xs.buffer[i2] = tmp
+		const tmp = xs[i1]
+		xs[i1] = xs[i2]
+		xs[i2] = tmp
 
 		for (let i = 0; i < n; i++) {
-			if (xs.buffer[i] == i1)
-				xs.buffer[i] = i2
-			else if (xs.buffer[i] == i2)
-				xs.buffer[i] = i1
+			if (xs[i] == i1)
+				xs[i] = i2
+			else if (xs[i] == i2)
+				xs[i] = i1
 		}
 	}
 
@@ -66,23 +56,94 @@ export default function generateStereoHilbertCurveOfSize(size) {
 		}
 	}
 
-	for (let y = 0; y < width; y += 4) {
-		for (let x = 0; x < width; x += 4) {
-			const i = y*width + x
+	if (width >= 4) {
 
-			transposeL(i+width+width,   2)
-			transposeR(i+width+width+2, 2)
+		for (let y = 0; y < width; y += 4) {
+			for (let x = 0; x < width; x += 4) {
+				const i = y*width + x
+				
+				xs[i+width+1] = i+width+2
+				xs[i+width+width+width+1] = i+width
+				xs[i+width+3] = i+width+width+width+2
+			}
+
+			xs[(y+4)*width - 1] = NaN// (y+7)*width
 		}
+		
+
+
+		for (let y = 0; y < width; y += 4) {
+			for (let x = 0; x < width; x += 4) {
+				const i = y*width + x
+
+				transposeL(i+width+width,   2)
+				transposeR(i+width+width+2, 2)
+			}
+
+			//xs[y*widthI]
+		}
+
+		if (width >= 8) {
+
+			for (let y = 0; y < width; y += 8) {
+				for (let x = 0; x < width; x += 8) {
+					const i = y*width + x
+
+					transposeL(i+width*4,   4)
+					transposeR(i+width*4+4, 4)
+					xs[i+width*4] = i+width*3
+					xs[i+width*3+7] = i+width*4+7
+					xs[i+width*3+3] = i+width*3+4
+				}
+			} 
+
+			if (width >= 16) {
+
+				for (let y = 0; y < width; y += 16) {
+					for (let x = 0; x < width; x += 16) {
+						const i = y*width + x
+
+						transposeL(i+width*8,   8)
+						transposeR(i+width*8+8, 8)
+						xs[i+width*7+7] = i+width*7+8
+						xs[i+width*8] = i+width*7
+						xs[i+width*7+15] = i+width*8+15
+					}
+				}
+
+			}
+
+		}
+
 	}
 
-	for (let y = 0; y < width; y += 8) {
-		for (let x = 0; x < width; x += 8) {
-			const i = y*width + x
-
-			//transposeL(i+width+width,   4)
-			//transposeR(i+width+width+2, 4)
-		}
+	/*
+	 * for duplicating onto right channel
+	// Produce right-side image, copy, then revert
+	transposeR(0, width)
+	for (let i = 0; i < n; i++) {
+		xs[i+n] = xs[i] + n
 	}
 
-	return xs
+	transposeR(0, width)*/
+
+	// Rotate left side image
+	transposeL(0, width)
+
+	// Find starting node
+	const nodes_with_inbound_edges = new Uint8Array(n)
+	for (let i = 0; i < n; i++) {
+		nodes_with_inbound_edges[xs[i]] = true
+	}
+	let node_idx = nodes_with_inbound_edges.findIndex(node => !node)
+
+	// Construct mapping
+	const mapping = new Uint16Array(size)
+	for (let i = 0; i < n; i++) {
+		mapping[i]   = node_idx
+		mapping[i+n] = node_idx+n
+		node_idx = xs[node_idx]
+	}
+
+	return mapping
 }

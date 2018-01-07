@@ -10,36 +10,54 @@ import Slider      from 'react-slider'
 class UI extends React.Component {
 	constructor(props) {
 		super(props)
+
+		this.state = {
+			value: 50
+		}
+
+		this.onChange = this.onChange.bind(this)
+	}
+
+	onChange(value) {
+		this.setState({value})
 	}
 
 	render() {
 		return <div className="ui">
 			<canvas ref={this.props.onViewportCanvasCreated}></canvas>
-			<HilbertOverlay size={512} />
-			<Slider defaultValue={50} />
+			<HilbertOverlay size={this.props.resolution} />
+			<Slider
+				defaultValue={50}
+				value={this.state.value}
+				onChange={this.onChange} />
 		</div>
 	}
 }
 
 // Don't add charts until page has loaded
 document.addEventListener('DOMContentLoaded', _ => {
-	const body = document.querySelector('body')
-
-	const video = document.createElement('video')
-	video.autoplay    = true
-	video.playsinline = true
-	body.appendChild(video)
-
-	const sonifier = new PCMSonifier(512)
+	const length = 512 // or 32, or 512
+	const sonifier = new PCMSonifier(length)
 	let videoSource
 
 	const reactRoot = document.createElement('div')
-	render(<UI onViewportCanvasCreated={el => {
-		videoSource = new VideoSource(video, el, sonifier.targets.buffer)
-	}}/>, reactRoot)
+	render(<UI
+		resolution={length}
+		onViewportCanvasCreated={el => {
+			if (!videoSource)
+				videoSource = new VideoSource(el, sonifier.targets.buffer, length)
+		}}
+	/>, reactRoot)
 	document.querySelector('body').appendChild(reactRoot)
 
-	//sonifier.start()
+		/*
+		onChangeResolution={buffer_size => {
+			sonifier.resize(buffer_size)
+			videoSource.resize(buffer_size)
+		}}
+		*/
+
+	sonifier.start()
 
 	//const monitor = new Monitor(document.getElementById('graph'), sonifier.targets.buffer)
 })

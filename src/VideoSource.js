@@ -1,12 +1,17 @@
 export default class VideoSource {
-	constructor(video, canvas, buffer) {
+	constructor(canvas, buffer, length) {
+		this._video = document.createElement('video')
+		this._video.autoplay    = true
+		this._video.playsinline = true
+		document.querySelector('body').appendChild(this._video)
+
 		// Public properties
 		this.buffer = buffer
 
 		// Private properties
-		this._video   = video
 		this._canvas  = canvas
 		this._context = null
+		this._length  = length
 
 		navigator.mediaDevices
 			.getUserMedia({audio: false, video: true}) // Don't need audio
@@ -19,15 +24,18 @@ export default class VideoSource {
 		console.log('Using video device: ' + videoTracks[0].label)
 		this._video.onplaying = () => {
 			// Scale into two rectangles to make Hilbert Curve easier to compute
-
-			this._canvas.height = Math.sqrt(this.buffer.length / 2)
-			this._canvas.width = this._canvas.height * 2
-
+			this.resize(this._length)
 			setInterval(this.nextFrame.bind(this), 16)
 		}
 		//this._video.onplay = () => console.log('video play')
 		this._video.srcObject = stream
 		this._context = this._canvas.getContext('2d')
+	}
+
+	resize(length) {
+		console.log('resizing to ', length)
+		this._canvas.height = Math.sqrt(length / 2)
+		this._canvas.width = this._canvas.height * 2
 	}
 
 	handleError(error) {
@@ -51,9 +59,14 @@ export default class VideoSource {
 
 	nextFrame() {
 
+		const width  = this._canvas.width
+		const offset = this._canvas.height ** 2
+
 		this._context.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
 		const image_data = this._context.getImageData(0, 0, this._canvas.width, this._canvas.height).data
 		let idx = 0
+		let idx_l = 0
+		let idx_r = 0
 		for (let i = 0; i < image_data.byteLength; i++) {
 			const r = image_data[i++]
 			const g = image_data[i++]
@@ -83,12 +96,25 @@ export default class VideoSource {
 				//this.buffer[idx++] = 0
 			}
 
-			this.buffer[idx++] = (r+g+b)/768
+			// TODO: ADJUSTABLE SENSITIVITY
+
+			if (idx++ % width < width/2) {
+				this.buffer[idx_l++] = ((r+g+b)/768)
+				//this.buffer[idx_l++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+			}
+			else {
+				this.buffer[offset + idx_r++] = ((r+g+b)/768)
+				//this.buffer[offset + idx_r++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+			}
 			// ignore alpha
 			//
 			
-			if (idx >= this.buffer.length)
-				idx -= this.buffer.length
+			if (idx_l >= this._length >> 1) {
+				idx_l -= this._length >> 1
+			}
+			if (idx_r >= this._length >> 1) {
+				idx_r -= this._length >> 1
+			}
 		}
 	}
 

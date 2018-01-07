@@ -28,25 +28,21 @@ export default class HilbertOverlay extends React.Component {
 		ctx.clearRect(0, 0, 1000, 1000)
 		ctx.beginPath()
 
-		for(let i = 0; i < curve.length / 2; i++) {
-			const x = k =>(toX(k) / (width-1)) * (500 - buffer/2) + buffer/4,
+		for(let i = 0; i < curve.length / 2 -1; i++) {
+			const x = k => (toX(k) / (width-1)) * (500 - buffer/2) + buffer/4,
 			      y = k => (toY(k) / (width-1)) * (1000 - buffer) + buffer/2
 
-			console.log(`curve(${i}) = ${curve.buffer[i]} = (${toX(curve.buffer[i])}, ${toY(curve.buffer[i])})`)
-			ctx.moveTo(x(i), y(i))
-			ctx.lineTo(x(curve.buffer[i]), y(curve.buffer[i]))
-			ctx.arc(x, y, 5, 0, 2*Math.PI)
-			ctx.strokeText(i, x, y)
+			ctx.moveTo(x(curve[i]), y(curve[i]))
+			ctx.lineTo(x(curve[i+1]), y(curve[i+1]))
 		}
 
-			/*
 		for(let i = curve.length / 2; i < curve.length; i++) {
-			console.log(`curve(${i}) = ${curve.buffer[i]} = (${toX(curve.buffer[i])}, ${toY(curve.buffer[i])})`)
-			ctx.lineTo(
-				(toX(curve.buffer[i]) / Math.sqrt(this.props.size/2)) * 500 + 500,
-				(toY(curve.buffer[i]) / Math.sqrt(this.props.size/2)) * 1000
-			)
-		}*/
+			const x = k => (toX(k - this.props.size/2) / (width-1)) * (500 - buffer/2) + buffer/4 + 500,
+				y = k => (toY(k - this.props.size/2) / (width-1)) * (1000 - buffer) + buffer/2
+
+			ctx.moveTo(x(curve[i]), y(curve[i]))
+			ctx.lineTo(x(curve[i+1]), y(curve[i+1]))
+		}
 
 		ctx.stroke()
 	}
