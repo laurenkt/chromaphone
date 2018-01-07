@@ -83,6 +83,23 @@ export default function generateStereoHilbertCurveOfSize(size) {
 			//xs[y*widthI]
 		}
 
+		
+		for (let inc = 4; inc < width; inc *= 2) {
+			for (let y = 0; y < width; y += inc*2) {
+				for (let x = 0; x < width; x += inc*2) {
+					const i = y*width + x
+
+					transposeL(i+width*inc,     inc)
+					transposeR(i+width*inc+inc, inc)
+					xs[i+width*inc]           = i+width*(inc-1)
+					xs[i+width*(inc-1)+(inc-1)]   = i+width*(inc-1)+inc
+					xs[i+width*(inc-1)+(inc*2-1)] = i+width*inc+(inc*2-1)
+				}
+			} 
+		
+		}
+
+			/*
 		if (width >= 8) {
 
 			for (let y = 0; y < width; y += 8) {
@@ -91,9 +108,9 @@ export default function generateStereoHilbertCurveOfSize(size) {
 
 					transposeL(i+width*4,   4)
 					transposeR(i+width*4+4, 4)
-					xs[i+width*4] = i+width*3
-					xs[i+width*3+7] = i+width*4+7
+					xs[i+width*4]   = i+width*3
 					xs[i+width*3+3] = i+width*3+4
+					xs[i+width*3+7] = i+width*4+7
 				}
 			} 
 
@@ -105,15 +122,15 @@ export default function generateStereoHilbertCurveOfSize(size) {
 
 						transposeL(i+width*8,   8)
 						transposeR(i+width*8+8, 8)
-						xs[i+width*7+7] = i+width*7+8
-						xs[i+width*8] = i+width*7
+						xs[i+width*8]    = i+width*7
+						xs[i+width*7+7]  = i+width*7+8
 						xs[i+width*7+15] = i+width*8+15
 					}
 				}
 
 			}
 
-		}
+		}*/
 
 	}
 
