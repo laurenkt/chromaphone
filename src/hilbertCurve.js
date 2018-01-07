@@ -117,32 +117,36 @@ export default function generateStereoHilbertCurveOfSize(size) {
 
 	}
 
-	/*
-	 * for duplicating onto right channel
 	// Produce right-side image, copy, then revert
 	transposeR(0, width)
 	for (let i = 0; i < n; i++) {
 		xs[i+n] = xs[i] + n
 	}
-
-	transposeR(0, width)*/
+	transposeR(0, width)
 
 	// Rotate left side image
 	transposeL(0, width)
 
-	// Find starting node
-	const nodes_with_inbound_edges = new Uint8Array(n)
-	for (let i = 0; i < n; i++) {
-		nodes_with_inbound_edges[xs[i]] = true
+	function find_index_of_first_node(start) {
+		// Find starting node
+		const nodes_with_inbound_edges = new Uint8Array(n)
+		for (let i = 0; i < n; i++) {
+			// Adjust depending on offset
+			nodes_with_inbound_edges[xs[start+i] - start] = true
+		}
+		return nodes_with_inbound_edges.findIndex(node => !node) + start
 	}
-	let node_idx = nodes_with_inbound_edges.findIndex(node => !node)
 
+
+	let left_idx  = find_index_of_first_node(0)
+	let right_idx = find_index_of_first_node(n)
 	// Construct mapping
 	const mapping = new Uint16Array(size)
 	for (let i = 0; i < n; i++) {
-		mapping[i]   = node_idx
-		mapping[i+n] = node_idx+n
-		node_idx = xs[node_idx]
+		mapping[i]   = left_idx
+		mapping[i+n] = right_idx
+		left_idx     = xs[left_idx]
+		right_idx    = xs[right_idx]
 	}
 
 	return mapping

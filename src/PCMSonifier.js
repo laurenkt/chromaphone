@@ -12,6 +12,9 @@ export default class PCMSonifier {
 		this._scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
+		this._frequencies = undefined
+		const upper = 1200
+		this.setFrequencyBounds(20, upper)
 
 		// Public
 		this.targets = {
@@ -20,9 +23,18 @@ export default class PCMSonifier {
 
 		// Set-up
 		this._scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
-		let filter = new Tone.Filter(1440, 'lowpass', -48).toMaster()
+		let filter = new Tone.Filter(upper, 'lowpass', -48).toMaster()
 		this._scriptNode.connect(filter)
 
+	}
+
+	setFrequencyBounds(lower, upper) {
+		const half = this._bufferSize/2
+
+		this._frequencies = new Float32Array(half)
+		for (let i = 0; i < half; i++) {
+			this._frequencies[i] = 2*Math.PI*(lower*(upper/lower)**(i/half))
+		}
 	}
 
 	resize(buffer_size) {
@@ -47,7 +59,7 @@ export default class PCMSonifier {
 			// Iterate through all possible tones, summing
 			for (let tone_idx = 0; tone_idx < half; tone_idx++) {
 				const scale = 1-(tone_idx/half)
-				const tone = Math.sin(t * (2*Math.PI*( 144*((1440/144)**scale) ))) // Min and max freq
+				const tone = Math.sin(t * this._frequencies[tone_idx])
 				// Smooth
 				this._state.buffer[tone_idx] = (this.targets.buffer[this._hilbert[tone_idx]] + this._state.buffer[tone_idx]) / 2
 				this._state.buffer[half+tone_idx] = (this.targets.buffer[this._hilbert[half+tone_idx]] + this._state.buffer[tone_idx]) / 2

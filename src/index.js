@@ -36,7 +36,7 @@ class UI extends React.Component {
 
 // Don't add charts until page has loaded
 document.addEventListener('DOMContentLoaded', _ => {
-	const length = 32 // or 32, or 512
+	const length = 2048 // or 32, or 512, 2048
 	const sonifier = new PCMSonifier(length)
 	let videoSource
 
