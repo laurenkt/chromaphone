@@ -49,8 +49,8 @@ export default class PCMSonifier {
 				const scale = 1-(tone_idx/half)
 				const tone = Math.sin(t * (2*Math.PI*( 144*((1440/144)**scale) ))) // Min and max freq
 				// Smooth
-				this._state.buffer[tone_idx] = (this.targets.buffer[tone_idx] + this._state.buffer[tone_idx]) / 2
-				this._state.buffer[half+tone_idx] = (this.targets.buffer[half+tone_idx] + this._state.buffer[tone_idx]) / 2
+				this._state.buffer[tone_idx] = (this.targets.buffer[this._hilbert[tone_idx]] + this._state.buffer[tone_idx]) / 2
+				this._state.buffer[half+tone_idx] = (this.targets.buffer[this._hilbert[half+tone_idx]] + this._state.buffer[tone_idx]) / 2
 
 				// TODO: HILBERT
 				l[idx] += (tone *
