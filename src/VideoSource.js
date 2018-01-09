@@ -73,10 +73,11 @@ export default class VideoSource {
 
 		const image_data_to_display = this._context.createImageData(image_data_obj)
 
-		let idx = 0
-		let idx_l = 0
-		let idx_r = 0
-		for (let i = 0; i < image_data.byteLength; i++) {
+		const lightnesses = new Float32Array(this._canvas.width * this._canvas.height)
+		let lightest = 0
+		let darkest  = 1
+
+		for (let i = 0, idx = 0; i < image_data.byteLength; i++, idx++) {
 			// Increment RGB, alpha is skipped by increment in for loop
 			const r = image_data[i++]
 			const g = image_data[i++]
@@ -108,25 +109,38 @@ export default class VideoSource {
 				//this.buffer[idx++] = 0
 			}*/
 
-			const lightness = (r+g+b)/768
-			const scaled_lightness = lightness**this.sensitivity
+			lightnesses[idx] = (r+g+b)/768
 
+			// TODO: FIGURE OUT WHY THIS IS NO LONGER WORKING!!!!!!!!
+				/*
+			if (lightnesses[idx] > lightest)
+				lightest = lightnesses[idx]
+
+			if (lightnesses[idx] < darkest)
+				darkest = lightnesses[idx]*/
+		}
+		let idx_l = 0
+		let idx_r = 0
+		for (let i = 0, idx = 0; i < image_data.byteLength; i += 4, idx++) {
+			const lightness = lightnesses[idx]**this.sensitivity
+			const scale_factor = lightness/lightnesses[idx]
+
+			// Output data to buffers
 			// Left
-			if (idx++ % width < width/2) {
-				this.buffer[idx_l++] = scaled_lightness
+			if (idx % width < width/2) {
+				this.buffer[idx_l++] = lightness
 			}
 			// Right
 			else {
-				this.buffer[offset + idx_r++] = scaled_lightness
+				this.buffer[offset + idx_r++] = lightness
 			}
 
-			const scale_factor = scaled_lightness/lightness
+			// Draw data to canvas
+			image_data_to_display.data[i]   = image_data[i] * scale_factor
+			image_data_to_display.data[i+1] = image_data[i+1] * scale_factor
+			image_data_to_display.data[i+2] = image_data[i+2] * scale_factor
+			image_data_to_display.data[i+3] = 0xFF // Alpha
 
-			image_data_to_display.data[i-3] = image_data[i-3] * scale_factor
-			image_data_to_display.data[i-2] = image_data[i-2] * scale_factor
-			image_data_to_display.data[i-1] = image_data[i-1] * scale_factor
-			image_data_to_display.data[i]   = 0xFF // Alpha
-			
 			if (idx_l >= this._length >> 1) {
 				idx_l -= this._length >> 1
 			}
