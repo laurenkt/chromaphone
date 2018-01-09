@@ -8,13 +8,13 @@ export default class PCMSonifier {
 			buffer: new Float32Array(16384), // 128x128... seems more than sufficient..
 			bufferHead: 0,
 		}
+		this.upperHz = 1200
+		this.lowerHz = 40
+
 		this.resize(buffer_size)
 		this._scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
-		this._frequencies = undefined
-		const upper = 1200
-		this.setFrequencyBounds(40, upper)
 
 		// Public
 		this.targets = {
@@ -23,7 +23,7 @@ export default class PCMSonifier {
 
 		// Set-up
 		this._scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
-		let filter = new Tone.Filter(upper, 'lowpass', -48).toMaster()
+		let filter = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
 		this._scriptNode.connect(filter)
 
 	}
@@ -38,9 +38,9 @@ export default class PCMSonifier {
 	}
 
 	resize(buffer_size) {
-		console.log('set buffer size ', buffer_size)
 		this._bufferSize = buffer_size
 		this._hilbert    = generateStereoHilbertCurveOfSize(buffer_size)
+		this.setFrequencyBounds(this.upperHz, this.lowerHz)
 	}
 
 	readBufferProcessEvent(e) {

@@ -9,18 +9,21 @@ export default class HilbertOverlay extends React.Component {
 	}
 
 	drawCanvas(canvas) {
-		console.log('drawCanvas', this.props.size)
 		this.canvas = canvas
 
-		const w = canvas.width = 3840
-		const h = canvas.height = 2160
+		const size = (2**this.props.order)**2*2
 
-		const curve = generateStereoHilbertCurveOfSize(this.props.size)
+		console.log('curve size', this.props.order, size)
+
+		const w    = canvas.width = 3840
+		const h    = canvas.height = 2160
+
+		const curve = generateStereoHilbertCurveOfSize(size)
 		const ctx   = canvas.getContext('2d')
 		ctx.strokeStyle = 'white'
 		ctx.lineWidth   = 4
 
-		const width = Math.sqrt(this.props.size/2)
+		const width = Math.sqrt(size/2)
 		const xbuffer = (w / width)
 		const ybuffer = (h / width)
 
@@ -44,8 +47,8 @@ export default class HilbertOverlay extends React.Component {
 		}
 
 		for(let i = curve.length / 2; i < curve.length; i++) {
-			const x = k => (toX(k - this.props.size/2) / (width-1)) * (w/2 - xbuffer/2) + xbuffer/4 + w/2,
-			      y = k => (toY(k - this.props.size/2) / (width-1)) * (h   - ybuffer) + ybuffer/2
+			const x = k => (toX(k - size/2) / (width-1)) * (w/2 - xbuffer/2) + xbuffer/4 + w/2,
+			      y = k => (toY(k - size/2) / (width-1)) * (h   - ybuffer) + ybuffer/2
 
 			ctx.moveTo(x(curve[i]), y(curve[i]))
 			ctx.lineTo(x(curve[i+1]), y(curve[i+1]))
