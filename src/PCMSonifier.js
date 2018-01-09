@@ -13,8 +13,8 @@ export default class PCMSonifier {
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
 		this._frequencies = undefined
-		const upper = 1200
-		this.setFrequencyBounds(20, upper)
+		const upper = 2200
+		this.setFrequencyBounds(90, upper)
 
 		// Public
 		this.targets = {
@@ -33,7 +33,7 @@ export default class PCMSonifier {
 
 		this._frequencies = new Float32Array(half)
 		for (let i = 0; i < half; i++) {
-			this._frequencies[i] = 2*Math.PI*(lower*(upper/lower)**(i/half))
+			this._frequencies[i] = 2*Math.PI*(((upper-lower)*(i/half))+lower) //(lower*(upper/lower)**(i/half))
 		}
 	}
 
@@ -58,23 +58,23 @@ export default class PCMSonifier {
 
 			// Iterate through all possible tones, summing
 			for (let tone_idx = 0; tone_idx < half; tone_idx++) {
-				const scale = 1-(tone_idx/half)
 				const tone = Math.sin(t * this._frequencies[tone_idx])
 				// Smooth
-				this._state.buffer[tone_idx] = (this.targets.buffer[this._hilbert[tone_idx]] + this._state.buffer[tone_idx]) / 2
+				this._state.buffer[tone_idx] = (this.targets.buffer[this._hilbert[tone_idx]]) + this._state.buffer[tone_idx] / 2
 				this._state.buffer[half+tone_idx] = (this.targets.buffer[this._hilbert[half+tone_idx]] + this._state.buffer[tone_idx]) / 2
 
 				// TODO: HILBERT
 				l[idx] += (tone *
-					this._state.buffer[this._state.bufferHead] )/100
+					this._state.buffer[tone_idx] )/100
 				r[idx] += (tone *
-					this._state.buffer[half + this._state.bufferHead] )/100
+					this._state.buffer[half + tone_idx] )/100
 			}
 
 			this._sample++
 
+				/*
 			if (++this._state.bufferHead >= half)
-				this._state.bufferHead -= half
+				this._state.bufferHead -= half*/
 		}
 	}
 

@@ -106,6 +106,7 @@ export default class VideoSource {
 				this.buffer[offset + idx_r++] = ((r+g+b)/768)
 				//this.buffer[offset + idx_r++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
 			}
+
 			// ignore alpha
 			//
 			
