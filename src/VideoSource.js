@@ -10,6 +10,9 @@ export default class VideoSource {
 		this.sensitivity = sensitivity || 1
 
 		// Private properties
+		this._bufferCanvas = document.createElement('canvas')
+		document.querySelector('body').appendChild(this._bufferCanvas)
+		this._bufferContext = null
 		this._canvas  = canvas
 		this._context = null
 		this._length  = length
@@ -31,11 +34,12 @@ export default class VideoSource {
 		//this._video.onplay = () => console.log('video play')
 		this._video.srcObject = stream
 		this._context = this._canvas.getContext('2d')
+		this._bufferContext = this._bufferCanvas.getContext('2d')
 	}
 
 	resize(length) {
-		this._canvas.height = Math.sqrt(length / 2)
-		this._canvas.width = this._canvas.height * 2
+		this._bufferCanvas.height = this._canvas.height = Math.sqrt(length / 2)
+		this._bufferCanvas.width  = this._canvas.width = this._canvas.height * 2
 		this._length = length
 	}
 
@@ -63,8 +67,12 @@ export default class VideoSource {
 		const width  = this._canvas.width
 		const offset = this._canvas.height ** 2
 
-		this._context.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
-		const image_data = this._context.getImageData(0, 0, this._canvas.width, this._canvas.height).data
+		this._bufferContext.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
+		const image_data_obj = this._bufferContext.getImageData(0, 0, this._canvas.width, this._canvas.height)
+		const image_data     = image_data_obj.data
+
+		const image_data_to_display = this._context.createImageData(image_data_obj)
+
 		let idx = 0
 		let idx_l = 0
 		let idx_r = 0
@@ -99,14 +107,21 @@ export default class VideoSource {
 				//this.buffer[idx++] = 0
 			}
 
+			const lightness = ((r+g+b)/768)**this.sensitivity
+
+			// Left
 			if (idx++ % width < width/2) {
-				//this.buffer[idx_l++] = ((r+g+b)/768)
-				this.buffer[idx_l++] = Math.min(Math.max(((r+g+b)/768)**this.sensitivity, 0), 1)
+				this.buffer[idx_l++] = lightness
 			}
+			// Right
 			else {
-				//this.buffer[offset + idx_r++] = ((r+g+b)/768)
-				this.buffer[offset + idx_r++] = Math.min(Math.max(((r+g+b)/768)**this.sensitivity, 0), 1)
+				this.buffer[offset + idx_r++] = lightness
 			}
+
+			image_data_to_display.data[i-3] = Math.round(lightness*0xFF)
+			image_data_to_display.data[i-2] = Math.round(lightness*0xFF)
+			image_data_to_display.data[i-1] = Math.round(lightness*0xFF)
+			image_data_to_display.data[i]   = image_data[i] // Alpha
 			
 			if (idx_l >= this._length >> 1) {
 				idx_l -= this._length >> 1
@@ -115,6 +130,8 @@ export default class VideoSource {
 				idx_r -= this._length >> 1
 			}
 		}
+
+		this._context.putImageData(image_data_to_display, 0, 0)
 	}
 
 }
