@@ -8,6 +8,7 @@ export default class UI extends React.Component {
 	}
 
 	render() {
+		console.log('props', this.props)
 		return <div className="ui">
 			<canvas ref={this.props.onViewportCanvasCreated}></canvas>
 			<HilbertOverlay order={this.props.hilbertCurveOrder} />
@@ -16,7 +17,7 @@ export default class UI extends React.Component {
 				value={this.props.sensitivity}
 				step={1}
 				min={1}
-				max={100}
+				max={99}
 				onChange={this.props.onSensitivityChange} />
 			<Slider
 				className="slider -top"
