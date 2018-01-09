@@ -160,7 +160,7 @@ export default function generateStereoHilbertCurveOfSize(size) {
 	const mapping = new Uint16Array(size)
 	for (let i = 0; i < n; i++) {
 		mapping[i]   = left_idx
-		mapping[i+n] = right_idx
+		mapping[size-i-1] = right_idx
 		left_idx     = xs[left_idx]
 		right_idx    = xs[right_idx]
 	}

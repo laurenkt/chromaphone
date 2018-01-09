@@ -8,7 +8,7 @@ export default class PCMSonifier {
 			buffer: new Float32Array(16384), // 128x128... seems more than sufficient..
 			bufferHead: 0,
 		}
-		this.upperHz = 1200
+		this.upperHz = 1800
 		this.lowerHz = 40
 
 		this.resize(buffer_size)
@@ -33,7 +33,7 @@ export default class PCMSonifier {
 
 		this._frequencies = new Float32Array(half)
 		for (let i = 0; i < half; i++) {
-			this._frequencies[i] = 2*Math.PI*(lower*(upper/lower)**(i/half))
+			this._frequencies[half-i-1] = 2*Math.PI*(lower*(upper/lower)**(i/half))
 		}
 	}
 
