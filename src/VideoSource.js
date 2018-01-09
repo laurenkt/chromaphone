@@ -82,6 +82,7 @@ export default class VideoSource {
 			const g = image_data[i++]
 			const b = image_data[i++]
 
+			/*
 			// Determine HUE of the colour
 			const max = Math.max(r,g,b)
 			const min = Math.min(r,g,b)
@@ -99,28 +100,31 @@ export default class VideoSource {
 				else if (max == b) {
 					hue = 60 * ((r-g)/chroma + 4)
 				}
-				/* should do lightness and sat */
+				// should do lightness and sat 
 				// scale between -1 and 1
 				//this.buffer[idx++] = (hue - 180) / 360
 			}
 			else {
 				//this.buffer[idx++] = 0
-			}
+			}*/
 
-			const lightness = ((r+g+b)/768)**this.sensitivity
+			const lightness = (r+g+b)/768
+			const scaled_lightness = lightness**this.sensitivity
 
 			// Left
 			if (idx++ % width < width/2) {
-				this.buffer[idx_l++] = lightness
+				this.buffer[idx_l++] = scaled_lightness
 			}
 			// Right
 			else {
-				this.buffer[offset + idx_r++] = lightness
+				this.buffer[offset + idx_r++] = scaled_lightness
 			}
 
-			image_data_to_display.data[i-3] =
-			image_data_to_display.data[i-2] =
-			image_data_to_display.data[i-1] = lightness*0xFF
+			const scale_factor = scaled_lightness/lightness
+
+			image_data_to_display.data[i-3] = image_data[i-3] * scale_factor
+			image_data_to_display.data[i-2] = image_data[i-2] * scale_factor
+			image_data_to_display.data[i-1] = image_data[i-1] * scale_factor
 			image_data_to_display.data[i]   = 0xFF // Alpha
 			
 			if (idx_l >= this._length >> 1) {
