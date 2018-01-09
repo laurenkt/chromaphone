@@ -118,10 +118,10 @@ export default class VideoSource {
 				this.buffer[offset + idx_r++] = lightness
 			}
 
-			image_data_to_display.data[i-3] = Math.round(lightness*0xFF)
-			image_data_to_display.data[i-2] = Math.round(lightness*0xFF)
-			image_data_to_display.data[i-1] = Math.round(lightness*0xFF)
-			image_data_to_display.data[i]   = image_data[i] // Alpha
+			image_data_to_display.data[i-3] =
+			image_data_to_display.data[i-2] =
+			image_data_to_display.data[i-1] = lightness*0xFF
+			image_data_to_display.data[i]   = 0xFF // Alpha
 			
 			if (idx_l >= this._length >> 1) {
 				idx_l -= this._length >> 1
