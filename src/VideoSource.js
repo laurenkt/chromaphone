@@ -99,12 +99,12 @@ export default class VideoSource {
 			// TODO: ADJUSTABLE SENSITIVITY
 
 			if (idx++ % width < width/2) {
-				this.buffer[idx_l++] = ((r+g+b)/768)
-				//this.buffer[idx_l++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+				//this.buffer[idx_l++] = ((r+g+b)/768)
+				this.buffer[idx_l++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
 			}
 			else {
-				this.buffer[offset + idx_r++] = ((r+g+b)/768)
-				//this.buffer[offset + idx_r++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+				//this.buffer[offset + idx_r++] = ((r+g+b)/768)
+				this.buffer[offset + idx_r++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
 			}
 
 			// ignore alpha

@@ -4,18 +4,25 @@ import generateStereoHilbertCurveOfSize from './hilbertCurve.js'
 export default class HilbertOverlay extends React.Component {
 	constructor(props) {
 		super(props)
+
+		this.drawCanvas = this.drawCanvas.bind(this)
 	}
 
 	drawCanvas(canvas) {
-		canvas.width = 1000
-		canvas.height = 1000
+		console.log('drawCanvas', this.props.size)
+		this.canvas = canvas
+
+		const w = canvas.width = 3840
+		const h = canvas.height = 2160
 
 		const curve = generateStereoHilbertCurveOfSize(this.props.size)
 		const ctx   = canvas.getContext('2d')
 		ctx.strokeStyle = 'white'
+		ctx.lineWidth   = 4
 
 		const width = Math.sqrt(this.props.size/2)
-		const buffer = (1000 / width)
+		const xbuffer = (w / width)
+		const ybuffer = (h / width)
 
 		const toX = k => {
 			return k % width
@@ -25,20 +32,20 @@ export default class HilbertOverlay extends React.Component {
 			return (k - (k % width)) / width
 		}
 
-		ctx.clearRect(0, 0, 1000, 1000)
+		ctx.clearRect(0, 0, w, h)
 		ctx.beginPath()
 
 		for(let i = 0; i < curve.length / 2 -1; i++) {
-			const x = k => (toX(k) / (width-1)) * (500 - buffer/2) + buffer/4,
-			      y = k => (toY(k) / (width-1)) * (1000 - buffer) + buffer/2
+			const x = k => (toX(k) / (width-1)) * (w/2 - xbuffer/2) + xbuffer/4,
+			      y = k => (toY(k) / (width-1)) * (h   - ybuffer)   + ybuffer/2
 
 			ctx.moveTo(x(curve[i]), y(curve[i]))
 			ctx.lineTo(x(curve[i+1]), y(curve[i+1]))
 		}
 
 		for(let i = curve.length / 2; i < curve.length; i++) {
-			const x = k => (toX(k - this.props.size/2) / (width-1)) * (500 - buffer/2) + buffer/4 + 500,
-				y = k => (toY(k - this.props.size/2) / (width-1)) * (1000 - buffer) + buffer/2
+			const x = k => (toX(k - this.props.size/2) / (width-1)) * (w/2 - xbuffer/2) + xbuffer/4 + w/2,
+			      y = k => (toY(k - this.props.size/2) / (width-1)) * (h   - ybuffer) + ybuffer/2
 
 			ctx.moveTo(x(curve[i]), y(curve[i]))
 			ctx.lineTo(x(curve[i+1]), y(curve[i+1]))
@@ -48,6 +55,11 @@ export default class HilbertOverlay extends React.Component {
 	}
 
 	render() {
-		return <canvas className="hilbert" ref={this.drawCanvas.bind(this)} />
+		console.log('Rerender', this.canvas)
+
+		if (this.canvas)
+			this.drawCanvas(this.canvas) // re-render to canvas
+
+		return <canvas className="hilbert" ref={this.drawCanvas} />
 	}
 }
