@@ -1,12 +1,13 @@
 export default class VideoSource {
-	constructor(canvas, buffer, length) {
+	constructor(canvas, buffer, length, sensitivity) {
 		this._video = document.createElement('video')
 		this._video.autoplay    = true
 		this._video.playsinline = true
 		document.querySelector('body').appendChild(this._video)
 
 		// Public properties
-		this.buffer = buffer
+		this.buffer      = buffer
+		this.sensitivity = sensitivity || 1
 
 		// Private properties
 		this._canvas  = canvas
@@ -33,9 +34,9 @@ export default class VideoSource {
 	}
 
 	resize(length) {
-		console.log('resizing to ', length)
 		this._canvas.height = Math.sqrt(length / 2)
 		this._canvas.width = this._canvas.height * 2
+		this._length = length
 	}
 
 	handleError(error) {
@@ -68,10 +69,12 @@ export default class VideoSource {
 		let idx_l = 0
 		let idx_r = 0
 		for (let i = 0; i < image_data.byteLength; i++) {
+			// Increment RGB, alpha is skipped by increment in for loop
 			const r = image_data[i++]
 			const g = image_data[i++]
 			const b = image_data[i++]
 
+			// Determine HUE of the colour
 			const max = Math.max(r,g,b)
 			const min = Math.min(r,g,b)
 			
@@ -96,19 +99,14 @@ export default class VideoSource {
 				//this.buffer[idx++] = 0
 			}
 
-			// TODO: ADJUSTABLE SENSITIVITY
-
 			if (idx++ % width < width/2) {
 				//this.buffer[idx_l++] = ((r+g+b)/768)
-				this.buffer[idx_l++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+				this.buffer[idx_l++] = Math.min(Math.max(((r+g+b)/768)**this.sensitivity, 0), 1)
 			}
 			else {
 				//this.buffer[offset + idx_r++] = ((r+g+b)/768)
-				this.buffer[offset + idx_r++] = Math.min(Math.max(Math.exp( 7*((r+g+b)/768) - 6.6 ) - 0.01, 0), 1)
+				this.buffer[offset + idx_r++] = Math.min(Math.max(((r+g+b)/768)**this.sensitivity, 0), 1)
 			}
-
-			// ignore alpha
-			//
 			
 			if (idx_l >= this._length >> 1) {
 				idx_l -= this._length >> 1

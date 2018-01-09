@@ -154,7 +154,6 @@ export default function generateStereoHilbertCurveOfSize(size) {
 		return nodes_with_inbound_edges.findIndex(node => !node) + start
 	}
 
-
 	let left_idx  = find_index_of_first_node(0)
 	let right_idx = find_index_of_first_node(n)
 	// Construct mapping

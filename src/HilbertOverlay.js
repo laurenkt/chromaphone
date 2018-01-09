@@ -13,8 +13,6 @@ export default class HilbertOverlay extends React.Component {
 
 		const size = (2**this.props.order)**2*2
 
-		console.log('curve size', this.props.order, size)
-
 		const w    = canvas.width = 3840
 		const h    = canvas.height = 2160
 
@@ -58,8 +56,6 @@ export default class HilbertOverlay extends React.Component {
 	}
 
 	render() {
-		console.log('Rerender', this.canvas)
-
 		if (this.canvas)
 			this.drawCanvas(this.canvas) // re-render to canvas
 

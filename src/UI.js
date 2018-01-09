@@ -12,7 +12,14 @@ export default class UI extends React.Component {
 			<canvas ref={this.props.onViewportCanvasCreated}></canvas>
 			<HilbertOverlay order={this.props.hilbertCurveOrder} />
 			<Slider
-				defaultValue={this.props.hilbertCurveOrder}
+				className="slider -bottom"
+				value={this.props.sensitivity}
+				step={1}
+				min={1}
+				max={100}
+				onChange={this.props.onSensitivityChange} />
+			<Slider
+				className="slider -top"
 				value={this.props.hilbertCurveOrder}
 				step={1}
 				min={1}

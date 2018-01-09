@@ -9,7 +9,8 @@ class App extends React.Component {
 		super(props)
 
 		this.state = {
-			hilbertCurveOrder: 2
+			hilbertCurveOrder: 2,
+			sensitivity: 1,
 		}
 
 		this.sonifier    = new PCMSonifier(this.getBufferLength(this.state.hilbertCurveOrder))
@@ -23,6 +24,7 @@ class App extends React.Component {
 	render() {
 		return <UI
 			hilbertCurveOrder={this.state.hilbertCurveOrder}
+			sensitivity={this.state.sensitivity}
 			onViewportCanvasCreated={el => {
 				if (!this.videoSource)
 					this.videoSource = new VideoSource(el, this.sonifier.targets.buffer, this.getBufferLength(this.state.hilbertCurveOrder))
@@ -31,6 +33,11 @@ class App extends React.Component {
 				this.setState({hilbertCurveOrder})
 				this.sonifier.resize(this.getBufferLength(hilbertCurveOrder))
 				this.videoSource.resize(this.getBufferLength(hilbertCurveOrder))
+			}}
+			onSensitivityChange={sensitivity => {
+				console.log('sens', sensitivity)
+				this.setState({sensitivity})
+				this.videoSource.sensitivity = ((100-sensitivity)/100)*6
 			}}
 		/>
 	}
