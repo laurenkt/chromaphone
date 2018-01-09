@@ -29,6 +29,9 @@ export default class PCMSonifier {
 	}
 
 	setFrequencyBounds(lower, upper) {
+		this.upperHz = upper
+		this.lowerHz = lower
+
 		const half = this._bufferSize/2
 
 		this._frequencies = new Float32Array(half)
@@ -40,7 +43,7 @@ export default class PCMSonifier {
 	resize(buffer_size) {
 		this._bufferSize = buffer_size
 		this._hilbert    = generateStereoHilbertCurveOfSize(buffer_size)
-		this.setFrequencyBounds(this.upperHz, this.lowerHz)
+		this.setFrequencyBounds(this.lowerHz, this.upperHz)
 	}
 
 	readBufferProcessEvent(e) {

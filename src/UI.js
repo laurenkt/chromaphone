@@ -25,6 +25,15 @@ export default class UI extends React.Component {
 				min={1}
 				max={6}
 				onChange={this.props.onHilbertCurveOrderChange} />
+			<Slider
+				min={1}
+				max={1000}
+				step={1}
+				value={this.props.freqRange}
+				onChange={this.props.onFreqRangeChange}
+				pearling
+				minDistance={10}
+				withBars />
 		</div>
 	}
 }

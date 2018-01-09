@@ -11,6 +11,7 @@ class App extends React.Component {
 		this.state = {
 			hilbertCurveOrder: 2,
 			sensitivity: 1,
+			freqRange: [1, 1000],
 		}
 
 		this.sonifier    = new PCMSonifier(this.getBufferLength(this.state.hilbertCurveOrder))
@@ -25,6 +26,7 @@ class App extends React.Component {
 		return <UI
 			hilbertCurveOrder={this.state.hilbertCurveOrder}
 			sensitivity={this.state.sensitivity}
+			freqRange={this.state.freqRange}
 			onViewportCanvasCreated={el => {
 				if (!this.videoSource)
 					this.videoSource = new VideoSource(el, this.sonifier.targets.buffer, this.getBufferLength(this.state.hilbertCurveOrder))
@@ -35,9 +37,16 @@ class App extends React.Component {
 				this.videoSource.resize(this.getBufferLength(hilbertCurveOrder))
 			}}
 			onSensitivityChange={sensitivity => {
-				console.log('sens', sensitivity)
 				this.setState({sensitivity})
 				this.videoSource.sensitivity = ((100-sensitivity)/100)*6
+			}}
+			onFreqRangeChange={range => {
+				// Between 10Hz-10000Hz
+				const log_scale = x => Math.round(10**(1+(x/1000)*3))
+				const [lower, upper] = range
+				this.setState({freqRange: [lower, upper]})
+
+				this.sonifier.setFrequencyBounds(log_scale(lower), log_scale(upper))
 			}}
 		/>
 	}
