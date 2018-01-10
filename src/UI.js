@@ -14,7 +14,6 @@ export default class UI extends React.Component {
 	}
 
 	render() {
-		console.log('props', this.props)
 		return <div className="ui">
 			<canvas ref={this.props.onViewportCanvasCreated}></canvas>
 			<HilbertOverlay order={this.props.hilbertCurveOrder} />
@@ -26,6 +25,14 @@ export default class UI extends React.Component {
 				min={1}
 				max={99}
 				onChange={this.props.onSensitivityChange} />
+			<Slider
+				className="slider -top"
+				defaultValue={this.props.lightnessCompression}
+				value={this.props.lightnessCompression}
+				step={1}
+				min={0}
+				max={1000}
+				onChange={this.props.onLightnessCompressionChange} />
 			<Slider
 				className="slider -top"
 				defaultValue={this.props.hilbertCurveOrder}

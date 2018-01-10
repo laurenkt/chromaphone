@@ -12,6 +12,7 @@ class App extends React.Component {
 			hilbertCurveOrder: 2,
 			sensitivity: 100,
 			freqRange: [1, 1000],
+			lightnessCompression: 0,
 		}
 				const log_scale = x => Math.round(10**(1+(x/1000)*3))
 
@@ -51,6 +52,10 @@ class App extends React.Component {
 				this.setState({freqRange: [lower, upper]})
 
 				this.sonifier.setFrequencyBounds(log_scale(lower), log_scale(upper))
+			}}
+			onLightnessCompressionChange={lightnessCompression => {
+				this.setState({lightnessCompression})
+				this.videoSource.lightnessCompression = lightnessCompression/1000
 			}}
 		/>
 	}

@@ -8,6 +8,7 @@ export default class VideoSource {
 		// Public properties
 		this.buffer      = buffer
 		this.sensitivity = sensitivity || 1
+		this.lightnessCompression = 0
 
 		// Private properties
 		this._bufferCanvas = document.createElement('canvas')
@@ -109,20 +110,27 @@ export default class VideoSource {
 				//this.buffer[idx++] = 0
 			}*/
 
-			lightnesses[idx] = (r+g+b)/768
+			lightnesses[idx] = (r+g+b)/765
 
-			// TODO: FIGURE OUT WHY THIS IS NO LONGER WORKING!!!!!!!!
-				/*
 			if (lightnesses[idx] > lightest)
 				lightest = lightnesses[idx]
 
 			if (lightnesses[idx] < darkest)
-				darkest = lightnesses[idx]*/
+				darkest = lightnesses[idx]
 		}
+
+		// Adjust compression values
+		darkest   *= this.lightnessCompression
+		lightest  += (1-lightest)*(1-this.lightnessCompression)
+
 		let idx_l = 0
 		let idx_r = 0
 		for (let i = 0, idx = 0; i < image_data.byteLength; i += 4, idx++) {
-			const lightness = lightnesses[idx]**this.sensitivity
+			// Compress within range in full image
+			// Currently only works when music is already playing
+			// needs a scaler
+			const compressed = ((lightnesses[idx] - darkest)) / (lightest-darkest)
+			const lightness = compressed**this.sensitivity
 			const scale_factor = lightness/lightnesses[idx]
 
 			// Output data to buffers
@@ -136,7 +144,7 @@ export default class VideoSource {
 			}
 
 			// Draw data to canvas
-			image_data_to_display.data[i]   = image_data[i] * scale_factor
+			image_data_to_display.data[i]   = image_data[i]   * scale_factor
 			image_data_to_display.data[i+1] = image_data[i+1] * scale_factor
 			image_data_to_display.data[i+2] = image_data[i+2] * scale_factor
 			image_data_to_display.data[i+3] = 0xFF // Alpha
