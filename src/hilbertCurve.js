@@ -1,4 +1,10 @@
+let memoise = {}
+
 export default function generateStereoHilbertCurveOfSize(size) {
+	// Don't bother computing it if it's been done before
+	if (memoise[size])
+		return memoise[size]
+
 	let xs = new Float32Array(size)
 	xs.fill(NaN)
 	const n = size/2
@@ -99,39 +105,6 @@ export default function generateStereoHilbertCurveOfSize(size) {
 		
 		}
 
-			/*
-		if (width >= 8) {
-
-			for (let y = 0; y < width; y += 8) {
-				for (let x = 0; x < width; x += 8) {
-					const i = y*width + x
-
-					transposeL(i+width*4,   4)
-					transposeR(i+width*4+4, 4)
-					xs[i+width*4]   = i+width*3
-					xs[i+width*3+3] = i+width*3+4
-					xs[i+width*3+7] = i+width*4+7
-				}
-			} 
-
-			if (width >= 16) {
-
-				for (let y = 0; y < width; y += 16) {
-					for (let x = 0; x < width; x += 16) {
-						const i = y*width + x
-
-						transposeL(i+width*8,   8)
-						transposeR(i+width*8+8, 8)
-						xs[i+width*8]    = i+width*7
-						xs[i+width*7+7]  = i+width*7+8
-						xs[i+width*7+15] = i+width*8+15
-					}
-				}
-
-			}
-
-		}*/
-
 	}
 
 	// Produce right-side image, copy, then revert
@@ -164,6 +137,9 @@ export default function generateStereoHilbertCurveOfSize(size) {
 		left_idx     = xs[left_idx]
 		right_idx    = xs[right_idx]
 	}
+
+	// Store for later re-use
+	memoise[size] = mapping
 
 	return mapping
 }
