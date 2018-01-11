@@ -59,6 +59,6 @@ export default class HilbertOverlay extends React.Component {
 		if (this.canvas)
 			this.drawCanvas(this.canvas) // re-render to canvas
 
-		return <canvas className="hilbert" ref={this.drawCanvas} />
+		return <canvas className="hilbert" ref={this.drawCanvas} {...this.props} />
 	}
 }
