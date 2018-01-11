@@ -24,7 +24,9 @@ export default class UI extends React.Component {
 				step={1}
 				min={1}
 				max={99}
-				onChange={this.props.onSensitivityChange} />
+				onChange={this.props.onSensitivityChange}>
+				<span>{this.props.sensitivity}%</span>
+			</Slider>
 			<Slider
 				className="slider -top"
 				defaultValue={this.props.lightnessCompression}
@@ -32,7 +34,9 @@ export default class UI extends React.Component {
 				step={1}
 				min={0}
 				max={1000}
-				onChange={this.props.onLightnessCompressionChange} />
+				onChange={this.props.onLightnessCompressionChange}>
+				<span>{Math.round(this.props.lightnessCompression/10)}%</span>
+			</Slider>
 			<Slider
 				className="slider -top"
 				defaultValue={this.props.hilbertCurveOrder}
@@ -40,7 +44,9 @@ export default class UI extends React.Component {
 				step={1}
 				min={1}
 				max={6}
-				onChange={this.props.onHilbertCurveOrderChange} />
+				onChange={this.props.onHilbertCurveOrderChange}>
+				<span>{this.props.hilbertCurveOrder}</span>
+			</Slider>
 			<Slider
 				min={1}
 				max={1000}
@@ -50,7 +56,10 @@ export default class UI extends React.Component {
 				onChange={this.props.onFreqRangeChange}
 				pearling
 				minDistance={10}
-				withBars />
+				withBars>
+				<span>{Math.round(10**(1+(this.props.freqRange[0]/1000)*3))}Hz</span>
+				<span>{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
+			</Slider>
 		</div>
 	}
 }

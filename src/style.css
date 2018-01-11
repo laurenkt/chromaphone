@@ -82,7 +82,8 @@ canvas {
 	width: 100%;
 	position: absolute;
 	left: 0;
-	height: 50px;
+	height: 20vh;
+	max-height: 80px;
 }
 
 .slider.-top {
@@ -100,8 +101,10 @@ canvas {
 	opacity: 0.7;
 	color: white;
 	cursor: pointer;
-	width: 30px;
-	height: 30px;
+	width: 20vh;
+	height: 20vh;
+	max-height: 80px;
+	max-width: 80px;
 	border-radius: 15px;
 }
 .handle.active {

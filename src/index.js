@@ -30,6 +30,8 @@ class App extends React.Component {
 			hilbertCurveOrder={this.state.hilbertCurveOrder}
 			sensitivity={this.state.sensitivity}
 			freqRange={this.state.freqRange}
+			lightnessCompression={this.state.lightnessCompression}
+
 			onViewportCanvasCreated={el => {
 				if (!this.videoSource) {
 					this.videoSource = new VideoSource(el, this.sonifier.targets.buffer, this.getBufferLength(this.state.hilbertCurveOrder))

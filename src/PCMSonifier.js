@@ -65,19 +65,15 @@ export default class PCMSonifier {
 			for (let tone_idx = 0; tone_idx < half; tone_idx++) {
 				const tone = Math.sin(t * this._frequencies[tone_idx])
 				// Smooth (moving average)
-				averages[tone_idx]      = (sources[this._hilbert[tone_idx]] + averages[tone_idx]) / 2
+				averages[tone_idx]      = (sources[this._hilbert[tone_idx]]      + averages[tone_idx]) / 2
 				averages[half+tone_idx] = (sources[this._hilbert[half+tone_idx]] + averages[tone_idx]) / 2
 
-				// TODO: HILBERT
+				// TODO: compression
 				l[idx] += (tone * averages[tone_idx] )/half
 				r[idx] += (tone * averages[half + tone_idx] )/half
 			}
 
 			this._sample++
-
-				/*
-			if (++this._state.bufferHead >= half)
-				this._state.bufferHead -= half*/
 		}
 	}
 
