@@ -87,7 +87,7 @@ export default class UI extends React.Component {
 						<a href="#" onClick={this.props.onClickMenu('leftright')}>Left/right</a>
 						<a href="#" onClick={this.props.onClickMenu('colours')}>Colours</a>
 						<a href="#" onClick={this.props.onClickMenu('sunrise')}>Sunrise</a>
-						<a href="#" onClick={this.focus()} className="-muted">&larr; Back</a>
+						<a href="#" onClick={e => { this.focus()(e); this.props.onClickMenu('camera')(e) }} className="-muted">&larr; Back</a>
 					</span>}
 			</div>
 		</div>
