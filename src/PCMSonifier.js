@@ -11,7 +11,6 @@ export default class PCMSonifier {
 		this.upperHz = 1800
 		this.lowerHz = 40
 
-		this.resize(buffer_size)
 		this._scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
@@ -22,9 +21,10 @@ export default class PCMSonifier {
 		}
 
 		// Set-up
+		this._filterNode = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
+		this.resize(buffer_size)
 		this._scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
-		let filter = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
-		this._scriptNode.connect(filter)
+		this._scriptNode.connect(this._filterNode)
 
 	}
 
@@ -36,8 +36,9 @@ export default class PCMSonifier {
 
 		this._frequencies = new Float32Array(half)
 		for (let i = 0; i < half; i++) {
-			this._frequencies[half-i-1] = 2*Math.PI*(lower*(upper/lower)**(i/half))
+			this._frequencies[i] = 2*Math.PI*(lower*(upper/lower)**(i/half))
 		}
+		this._filterNode.frequency.set(this._frequencies[half-1])
 	}
 
 	resize(buffer_size) {

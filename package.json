@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf ./dist; mkdir dist && cpx src/{index.html,style.css} dist && webpack",
     "start": "webpack-dev-server --open --disable-host-check --bonjour --host 0.0.0.0 --https",
-    "watch": "rm -rf ./dist; webpack && (cpx \"src/{index.html,style.css}\" dist --watch &) && npm start"
+    "watch": "rm -rf ./dist; webpack && (cpx \"src/{index.html,style.css}\" dist --watch &) && (cpx \"assets/*\" dist/assets --watch &) && npm start"
   },
   "author": "",
   "license": "UNLICENSED",

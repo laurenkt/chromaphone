@@ -3,6 +3,7 @@ export default class VideoSource {
 		this._video = document.createElement('video')
 		this._video.autoplay    = true
 		this._video.playsinline = true
+		this._video.loop        = true
 		document.querySelector('body').appendChild(this._video)
 
 		// Public properties
@@ -18,29 +19,41 @@ export default class VideoSource {
 		this._context = null
 		this._length  = length
 
-		navigator.mediaDevices
-			.getUserMedia({audio: false, video: true}) // Don't need audio
-			.then(this.handleSuccess.bind(this))
-			.catch(this.handleError.bind(this))
+		this._video.onplaying = () => {
+			console.log('Playing starting')
+			// Scale into two rectangles to make Hilbert Curve easier to compute
+			this.resize(this._length)
+			this._context = this._canvas.getContext('2d')
+			this._bufferContext = this._bufferCanvas.getContext('2d')
+			// 30fps, sufficient for most video
+			setInterval(this.nextFrame.bind(this), 33)
+		}
+
+		this.setMode('camera')
+	}
+
+	setMode(mode) {
+		if (mode == 'camera') {
+			navigator.mediaDevices
+				.getUserMedia({audio: false, video: true}) // Don't need audio
+				.then(this.handleSuccess.bind(this))
+				.catch(this.handleError.bind(this))
+		}
+		else {
+			this._video.srcObject = null
+			this._video.src = `assets/${mode}.mp4`
+		}
 	}
 
 	handleSuccess(stream) {
 		var videoTracks = stream.getVideoTracks()
 		console.log('Using video device: ' + videoTracks[0].label)
-		this._video.onplaying = () => {
-			// Scale into two rectangles to make Hilbert Curve easier to compute
-			this.resize(this._length)
-			setInterval(this.nextFrame.bind(this), 16)
-		}
-		//this._video.onplay = () => console.log('video play')
 		this._video.srcObject = stream
-		this._context = this._canvas.getContext('2d')
-		this._bufferContext = this._bufferCanvas.getContext('2d')
 	}
 
 	resize(length) {
-		this._bufferCanvas.height = this._canvas.height = Math.sqrt(length / 2)
-		this._bufferCanvas.width  = this._canvas.width = this._canvas.height * 2
+		this.height  = this._bufferCanvas.height = this._canvas.height = Math.sqrt(length / 2)
+		this.width   = this._bufferCanvas.width  = this._canvas.width = this._canvas.height * 2
 		this._length = length
 	}
 
@@ -65,16 +78,16 @@ export default class VideoSource {
 
 	nextFrame() {
 
-		const width  = this._canvas.width
-		const offset = this._canvas.height ** 2
+		const width  = this.width
+		const offset = this.height ** 2
 
-		this._bufferContext.drawImage(this._video, 0, 0, this._canvas.width, this._canvas.height)
-		const image_data_obj = this._bufferContext.getImageData(0, 0, this._canvas.width, this._canvas.height)
+		this._bufferContext.drawImage(this._video, 0, 0, width, this.height)
+		const image_data_obj = this._bufferContext.getImageData(0, 0, width, this.height)
 		const image_data     = image_data_obj.data
 
 		const image_data_to_display = this._context.createImageData(image_data_obj)
 
-		const lightnesses = new Float32Array(this._canvas.width * this._canvas.height)
+		const lightnesses = new Float32Array(width * this.height)
 		let lightest = 0
 		let darkest  = 1
 

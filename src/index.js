@@ -59,6 +59,10 @@ class App extends React.Component {
 				this.setState({lightnessCompression})
 				this.videoSource.lightnessCompression = lightnessCompression/1000
 			}}
+			onClickMenu={key => e => {
+				e.preventDefault()
+				this.videoSource.setMode(key)
+			}}
 		/>
 	}
 }

@@ -76,7 +76,20 @@ export default class UI extends React.Component {
 				<span>{Math.round(10**(1+(this.props.freqRange[0]/1000)*3))}Hz</span>
 				<span>{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
 			</Slider>
-			<div className="menu"><a href="#" onClick={this.focus('training')}>Load Training Videos</a></div>
+			<div className="menu">
+				<a href="#">&#x2714; Earcons</a>
+				<a href="#">&#x2714; Hilbert Overlay</a>
+				{this.state.focus != 'training' &&
+					<a href="#" onClick={this.focus('training')}>Training Videos</a>}
+				{this.state.focus == 'training' && 
+					<span className="training-videos">
+						<a href="#" onClick={this.props.onClickMenu('updown')}>Up/down</a>
+						<a href="#" onClick={this.props.onClickMenu('leftright')}>Left/right</a>
+						<a href="#" onClick={this.props.onClickMenu('colours')}>Colours</a>
+						<a href="#" onClick={this.props.onClickMenu('sunrise')}>Sunrise</a>
+						<a href="#" onClick={this.focus()} className="-muted">&larr; Back</a>
+					</span>}
+			</div>
 		</div>
 	}
 }
