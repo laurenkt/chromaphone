@@ -102,9 +102,9 @@ export default class VideoSource {
 
 		for (let i = 0, idx = 0; i < image_data.byteLength; i++, idx++) {
 			// Increment RGB, alpha is skipped by increment in for loop
-			const r = image_data[i++]
-			const g = image_data[i++]
-			const b = image_data[i++]
+			const r = image_data[i++] / 0xFF
+			const g = image_data[i++] / 0xFF
+			const b = image_data[i++] / 0xFF
 
 			// Determine HUE of the colour
 			const max = Math.max(r,g,b)
@@ -115,24 +115,25 @@ export default class VideoSource {
 			let hue = undefined
 			if (chroma != 0) {
 				if (max == r) {
-					hue = 60 * ((g-b)/chroma % 6)
+					hue = ((g-b)/chroma % 6)/6
 				}
 				else if (max == g) {
-					hue = 60 * ((b-r)/chroma + 2)
+					hue = ((b-r)/chroma + 2)/6
 				}
 				else if (max == b) {
-					hue = 60 * ((r-g)/chroma + 4)
+					hue = ((r-g)/chroma + 4)/6
 				}
 				// should do lightness and sat 
 				// scale between -1 and 1
-				hues[idx] = (hue + 60)/360
+				hues[idx] = hue
 			}
 			else {
 				// Greyscale
 				hues[idx] = NaN
 			}
 
-			lightnesses[idx] = ((max+min)/2) / 0xFF
+			lightnesses[idx] = (max+min)/2
+			saturations[idx]  = chroma/(1 - Math.abs(2*lightnesses[idx] - 1))
 
 			if (lightnesses[idx] > lightest)
 				lightest = lightnesses[idx]
@@ -158,14 +159,16 @@ export default class VideoSource {
 			// Output data to buffers
 			// Left
 			if (idx % width < width/2) {
-				this.buffers.lightness[idx_l] = lightness
-				this.buffers.hue[idx_l]       = hues[idx]
+				this.buffers.lightness[idx_l]  = lightness
+				this.buffers.hue[idx_l]        = hues[idx]
+				this.buffers.saturation[idx_l] = saturations[idx]
 				idx_l++
 			}
 			// Right
 			else {
 				this.buffers.lightness[offset + idx_r] = lightness
 				this.buffers.hue[offset + idx_r]       = hues[idx]
+				this.buffers.saturation[offset+idx_r]  = saturations[idx]
 				idx_r++
 			}
 

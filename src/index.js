@@ -38,8 +38,9 @@ class App extends React.Component {
 						canvas: el,
 						length: this.getBufferLength(this.state.hilbertCurveOrder),
 						buffers: {
-							lightness: this.sonifier.targets.lightness,
-							hue:       this.sonifier.targets.hue,
+							lightness:  this.sonifier.targets.lightness,
+							hue:        this.sonifier.targets.hue,
+							saturation: this.sonifier.targets.saturation,
 						},
 					})
 					this.videoSource.sensitivity = (((100-this.state.sensitivity)/100))*5 + 1
