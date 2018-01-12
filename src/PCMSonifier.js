@@ -101,9 +101,9 @@ export default class PCMSonifier {
 			average_satL = 0,
 			average_satR = 0
 		// Central 'quarter'
-		for (let idx = 0; idx < half/8; idx++) {
-			average_satL = saturations[       idx+half/4+half/8]
-			average_satR = saturations[half + idx+half/4+half/8]
+		for (let idx = 0; idx < half/4; idx++) {
+			average_satL += saturations[       idx+half/4+half/8]
+			average_satR += saturations[half + idx+half/4+half/8]
 			if (!Number.isNaN(hues[idx+half/4+half/8])) {
 				average_hueL += hues[idx+half/4+half/8]
 				count_hueL++
@@ -124,10 +124,11 @@ export default class PCMSonifier {
 			this.sawtoothNodeR.frequency.value = average_hueR * 440 + 440
 		}
 
+		window.half_8 = half/8
 		window.average_satL = average_satL
 
-		this.distortionL.distortion = this.scaleL.max = average_satL/(half/8)
-		this.distortionR.distortion = this.scaleR.max = average_satR/(half/8)
+		this.distortionL.distortion = this.scaleL.max = average_satL/(half/4)
+		this.distortionR.distortion = this.scaleR.max = average_satR/(half/4)
 	}
 
 	start() {

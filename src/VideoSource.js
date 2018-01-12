@@ -133,7 +133,9 @@ export default class VideoSource {
 			}
 
 			lightnesses[idx] = (max+min)/2
-			saturations[idx]  = chroma/(1 - Math.abs(2*lightnesses[idx] - 1))
+			saturations[idx] = lightnesses[idx] == 1 ? 0 :
+				               lightnesses[idx] == 0 ? 0 : 
+				               chroma/(1 - Math.abs(2*lightnesses[idx] - 1))
 
 			if (lightnesses[idx] > lightest)
 				lightest = lightnesses[idx]
