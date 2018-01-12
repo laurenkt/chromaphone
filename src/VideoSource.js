@@ -1,5 +1,11 @@
 export default class VideoSource {
-	constructor(canvas, buffer, length, sensitivity) {
+	constructor(opts) {
+		opts = Object.assign({}, {
+			// Defaults
+			sensitivity: 1,
+			lightnessCompression: 0
+		}, opts)	
+
 		this._video = document.createElement('video')
 		this._video.autoplay    = true
 		this._video.playsinline = true
@@ -7,17 +13,17 @@ export default class VideoSource {
 		document.querySelector('body').appendChild(this._video)
 
 		// Public properties
-		this.buffer      = buffer
-		this.sensitivity = sensitivity || 1
-		this.lightnessCompression = 0
+		this.buffers = opts.buffers
+		this.sensitivity = opts.sensitivity
+		this.lightnessCompression = opts.lightnessCompression
 
 		// Private properties
 		this._bufferCanvas = document.createElement('canvas')
 		document.querySelector('body').appendChild(this._bufferCanvas)
 		this._bufferContext = null
-		this._canvas  = canvas
+		this._canvas  = opts.canvas
 		this._context = null
-		this._length  = length
+		this._length  = opts.length
 
 		this._video.onplaying = () => {
 			console.log('Playing starting')
@@ -88,6 +94,9 @@ export default class VideoSource {
 		const image_data_to_display = this._context.createImageData(image_data_obj)
 
 		const lightnesses = new Float32Array(width * this.height)
+		const hues        = new Float32Array(width * this.height)
+		const saturations = new Float32Array(width * this.height)
+
 		let lightest = 0
 		let darkest  = 1
 
@@ -97,7 +106,6 @@ export default class VideoSource {
 			const g = image_data[i++]
 			const b = image_data[i++]
 
-			/*
 			// Determine HUE of the colour
 			const max = Math.max(r,g,b)
 			const min = Math.min(r,g,b)
@@ -117,13 +125,14 @@ export default class VideoSource {
 				}
 				// should do lightness and sat 
 				// scale between -1 and 1
-				//this.buffer[idx++] = (hue - 180) / 360
+				hues[idx] = (hue + 60)/360
 			}
 			else {
-				//this.buffer[idx++] = 0
-			}*/
+				// Greyscale
+				hues[idx] = NaN
+			}
 
-			lightnesses[idx] = (r+g+b)/765
+			lightnesses[idx] = ((max+min)/2) / 0xFF
 
 			if (lightnesses[idx] > lightest)
 				lightest = lightnesses[idx]
@@ -149,11 +158,15 @@ export default class VideoSource {
 			// Output data to buffers
 			// Left
 			if (idx % width < width/2) {
-				this.buffer[idx_l++] = lightness
+				this.buffers.lightness[idx_l] = lightness
+				this.buffers.hue[idx_l]       = hues[idx]
+				idx_l++
 			}
 			// Right
 			else {
-				this.buffer[offset + idx_r++] = lightness
+				this.buffers.lightness[offset + idx_r] = lightness
+				this.buffers.hue[offset + idx_r]       = hues[idx]
+				idx_r++
 			}
 
 			// Draw data to canvas

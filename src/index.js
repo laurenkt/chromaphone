@@ -34,7 +34,14 @@ class App extends React.Component {
 
 			onViewportCanvasCreated={el => {
 				if (!this.videoSource) {
-					this.videoSource = new VideoSource(el, this.sonifier.targets.buffer, this.getBufferLength(this.state.hilbertCurveOrder))
+					this.videoSource = new VideoSource({
+						canvas: el,
+						length: this.getBufferLength(this.state.hilbertCurveOrder),
+						buffers: {
+							lightness: this.sonifier.targets.lightness,
+							hue:       this.sonifier.targets.hue,
+						},
+					})
 					this.videoSource.sensitivity = (((100-this.state.sensitivity)/100))*5 + 1
 				}
 			}}

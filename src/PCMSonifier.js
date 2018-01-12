@@ -4,9 +4,9 @@ import generateStereoHilbertCurveOfSize from './hilbertCurve.js'
 export default class PCMSonifier {
 	constructor(buffer_size) {
 		// Private
-		this._state = {
-			buffer: new Float32Array(16384), // 128x128... seems more than sufficient..
-			bufferHead: 0,
+		this.buffers = {
+			lightness: new Float32Array(16384), // 128x128... seems more than sufficient..
+			hue:       new Float32Array(16384), // 128x128... seems more than sufficient..
 		}
 		this.upperHz = 1800
 		this.lowerHz = 40
@@ -15,10 +15,21 @@ export default class PCMSonifier {
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
 
+		this.sawtoothNodeL = new Tone.Oscillator(440, 'square')
+		this.sawtoothNodeR = new Tone.Oscillator(440, 'square')
+		this.sawtoothNodeL.connect((new Tone.Panner(-1)).toMaster())
+		this.sawtoothNodeR.connect((new Tone.Panner( 1)).toMaster())
+		this.sawtoothNodeL.start()
+		this.sawtoothNodeR.start()
+
 		// Public
 		this.targets = {
-			buffer: new Float32Array(16384),
+			lightness: new Float32Array(16384),
+			hue:       new Float32Array(16384),
 		}
+
+		// For debugging
+		window.targets = this.targets
 
 		// Set-up
 		this._filterNode = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
@@ -52,8 +63,8 @@ export default class PCMSonifier {
 		let r = e.outputBuffer.getChannelData(1)
 		const len      = e.inputBuffer.length
 		const half     = this._bufferSize >> 1
-		const sources  = this.targets.buffer
-		const averages = this._state.buffer
+		const sources  = this.targets.lightness
+		const averages = this.buffers.lightness
 
 		for (let idx = 0; idx < len; idx++) {
 			const t = this._sample / 44100
@@ -75,6 +86,34 @@ export default class PCMSonifier {
 			}
 
 			this._sample++
+		}
+
+		const hues = this.targets.hue
+
+		let average_hueL = 0
+		let average_hueR = 0
+		let count_hueL = 0
+		let count_hueR = 0
+		// Central 'quarter'
+		for (let idx = 0; idx < half/8; idx++) {
+			if (!Number.isNaN(hues[idx+half/4+half/8])) {
+				average_hueL += hues[idx+half/4+half/8]
+				count_hueL++
+			}
+			if (!Number.isNaN(hues[half+idx+half/44+half/8])) {
+				average_hueR += hues[half+idx+half/4+half/8]
+				count_hueR++
+			}
+		}
+
+		if (count_hueL > 0) { 
+			average_hueL = average_hueL/count_hueL
+			this.sawtoothNodeL.frequency.value = average_hueL * 440 + 440
+		}
+
+		if (count_hueR > 0) { 
+			average_hueR = average_hueR/count_hueR
+			this.sawtoothNodeR.frequency.value = average_hueR * 440 + 440
 		}
 	}
 
