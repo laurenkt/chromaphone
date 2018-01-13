@@ -63,6 +63,16 @@ export default class UI extends React.Component {
 				<span>{this.props.hilbertCurveOrder}</span>
 			</Slider>
 			<Slider
+				className={`slider ${this.state.focus == 'colorVolume' && '-focus'}`}
+				defaultValue={this.props.colorVolume}
+				value={this.props.colorVolume}
+				step={1}
+				min={0}
+				max={1000}
+				onChange={this.state.focus == 'colorVolume' ? this.props.onColorVolumeChange : this.focus('colorVolume')}>
+				<span>{Math.round(this.props.colorVolume/10)}%</span>
+			</Slider>
+			<Slider
 				className={`slider ${this.state.focus == 'freqRange' && '-focus'}`}
 				min={1}
 				max={1000}

@@ -16,6 +16,7 @@ export default class PCMSonifier {
 		this._scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
 		this._source = new Tone.Source().connect(this._scriptNode)
 		this._sample = 0
+		this.fmVolume = 0
 
 		this.scaleL = new Tone.Scale().connect(new Tone.Panner(-1).toMaster())
 		this.scaleR = new Tone.Scale().connect(new Tone.Panner( 1).toMaster())
@@ -116,19 +117,16 @@ export default class PCMSonifier {
 
 		if (count_hueL > 0) { 
 			average_hueL = average_hueL/count_hueL
-			this.sawtoothNodeL.frequency.value = average_hueL * 440 + 440
+			this.sawtoothNodeL.frequency.value = average_hueL * 1320 + 440
 		}
 
 		if (count_hueR > 0) { 
 			average_hueR = average_hueR/count_hueR
-			this.sawtoothNodeR.frequency.value = average_hueR * 440 + 440
+			this.sawtoothNodeR.frequency.value = average_hueR * 1320 + 440
 		}
 
-		window.half_8 = half/8
-		window.average_satL = average_satL
-
-		this.distortionL.distortion = this.scaleL.max = average_satL/(half/4)
-		this.distortionR.distortion = this.scaleR.max = average_satR/(half/4)
+		this.distortionL.distortion = this.scaleL.max = (average_satL/(half/4)) * this.fmVolume
+		this.distortionR.distortion = this.scaleR.max = (average_satR/(half/4)) * this.fmVolume
 	}
 
 	start() {
