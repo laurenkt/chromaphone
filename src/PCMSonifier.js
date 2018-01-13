@@ -32,6 +32,8 @@ export default class PCMSonifier {
 			lightness:  new Float32Array(16384),
 		}
 
+		this.maxLoudness = 0
+
 		// For debugging
 		window.targets = this.targets
 
@@ -88,6 +90,21 @@ export default class PCMSonifier {
 				l[idx] += (tone * averages[tone_idx] )/half
 				r[idx] += (tone * averages[half + tone_idx] )/half
 			}
+
+			// Decrease dynamic range
+			// Technically we should use abs values here because the output range is [-1 1] but
+			// this loop is probably expensive enough already and it will function approximately
+			// the same
+			if (l[idx] > this.maxLoudness || r[idx] > this.maxLoudness)
+				this.maxLoudness += 0.0000226757
+
+			if (this.maxLoudness > 0) {
+				l[idx] = l[idx] / this.maxLoudness
+				r[idx] = r[idx] / this.maxLoudness
+			}
+
+			// Reduce to effect maximum compression
+			this.maxLoudness -= 0.00000226757 // will reset back to zero after 10 seconds
 
 			this._sample++
 		}
