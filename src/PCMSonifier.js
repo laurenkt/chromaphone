@@ -96,15 +96,15 @@ export default class PCMSonifier {
 			// this loop is probably expensive enough already and it will function approximately
 			// the same
 			if (l[idx] > this.maxLoudness || r[idx] > this.maxLoudness)
-				this.maxLoudness += 0.0000226757
+				this.maxLoudness += 1e-5
 
-			if (this.maxLoudness > 0) {
-				l[idx] = l[idx] / this.maxLoudness
-				r[idx] = r[idx] / this.maxLoudness
+			if (this.maxLoudness > 0 && this.compression > 0) {
+				l[idx] = l[idx] / (this.maxLoudness + (1-this.maxLoudness)*(1-this.compression))
+				r[idx] = r[idx] / (this.maxLoudness + (1-this.maxLoudness)*(1-this.compression))
 			}
 
 			// Reduce to effect maximum compression
-			this.maxLoudness -= 0.00000226757 // will reset back to zero after 10 seconds
+			this.maxLoudness -= 1e-6 // will reset back to zero after 10 seconds
 
 			this._sample++
 		}

@@ -2,6 +2,7 @@ import React          from 'react'
 import HilbertOverlay from './HilbertOverlay.js'
 import Slider         from 'react-slider'
 
+
 export default class UI extends React.Component {
 	constructor(props) {
 		super(props)
@@ -11,6 +12,7 @@ export default class UI extends React.Component {
 		}
 
 		this.focus = this.focus.bind(this)
+		this.Parameter = this.Parameter.bind(this)
 	}
 
 	// Workaround to cause handles to render properly in React 16
@@ -27,65 +29,37 @@ export default class UI extends React.Component {
 			this.setState({focus: key})
 		}
 	}
+	
+	Parameter({name, min, max, children, ...props}) {
+		return <Slider
+			{...props}
+			className={`slider ${this.state.focus == name && '-focus'}`}
+			defaultValue={this.props[name]}
+			value={this.props[name]}
+			step={1}
+			min={min}
+			max={max}
+			onChange={this.state.focus == name ? this.props.onChange(name) : this.focus(name)}>
+			{children ||
+				<span>{Math.floor(100* ((this.props[name]-min) / (max-min)))}%</span>}
+		</Slider>
+	}
 
 	render() {
 		return <div className="ui">
 			<canvas ref={this.props.onViewportCanvasCreated} onClick={this.focus(undefined)}></canvas>
 			<HilbertOverlay order={this.props.hilbertCurveOrder} onClick={this.focus(undefined)} />
-			<Slider
-				className={`slider ${this.state.focus == 'sensitivity' && '-focus'}`}
-				defaultValue={this.props.sensitivity}
-				value={this.props.sensitivity}
-				step={1}
-				min={1}
-				max={99}
-				onChange={this.state.focus == 'sensitivity' ? this.props.onSensitivityChange : this.focus('sensitivity')}>
-				<span>{this.props.sensitivity}%</span>
-			</Slider>
-			<Slider
-				className={`slider ${this.state.focus == 'lightnessCompression' && '-focus'}`}
-				defaultValue={this.props.lightnessCompression}
-				value={this.props.lightnessCompression}
-				step={1}
-				min={0}
-				max={1000}
-				onChange={this.state.focus == 'lightnessCompression' ? this.props.onLightnessCompressionChange : this.focus('lightnessCompression')}>
-				<span>{Math.round(this.props.lightnessCompression/10)}%</span>
-			</Slider>
-			<Slider
-				className={`slider ${this.state.focus == 'hilbertCurveOrder' && '-focus'}`}
-				defaultValue={this.props.hilbertCurveOrder}
-				value={this.props.hilbertCurveOrder}
-				step={1}
-				min={1}
-				max={6}
-				onChange={this.state.focus == 'hilbertCurveOrder' ? this.props.onHilbertCurveOrderChange : this.focus('hilbertCurveOrder')}>
+			<this.Parameter name="sensitivity" min={1} max={100} />
+			<this.Parameter name="lightnessCompression" min={0} max={1000} />
+			<this.Parameter name="audioCompression" min={0} max={1000} />
+			<this.Parameter name="hilbertCurveOrder" min={1} max={6}>
 				<span>{this.props.hilbertCurveOrder}</span>
-			</Slider>
-			<Slider
-				className={`slider ${this.state.focus == 'colorVolume' && '-focus'}`}
-				defaultValue={this.props.colorVolume}
-				value={this.props.colorVolume}
-				step={1}
-				min={0}
-				max={1000}
-				onChange={this.state.focus == 'colorVolume' ? this.props.onColorVolumeChange : this.focus('colorVolume')}>
-				<span>{Math.round(this.props.colorVolume/10)}%</span>
-			</Slider>
-			<Slider
-				className={`slider ${this.state.focus == 'freqRange' && '-focus'}`}
-				min={1}
-				max={1000}
-				step={1}
-				defaultValue={this.props.freqRange}
-				value={this.props.freqRange}
-				onChange={this.state.focus == 'freqRange' ? this.props.onFreqRangeChange : this.focus('freqRange')}
-				pearling
-				minDistance={10}
-				withBars>
+			</this.Parameter>
+			<this.Parameter name="colorVolume" min={0} max={1000} />
+			<this.Parameter name="freqRange" min={1} max={1000} pearling minDistance={10}>
 				<span>{Math.round(10**(1+(this.props.freqRange[0]/1000)*3))}Hz</span>
 				<span>{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
-			</Slider>
+			</this.Parameter>
 			<div className="menu">
 				<a href="#">&#x2714; Earcons</a>
 				<a href="#">&#x2714; Hilbert Overlay</a>
