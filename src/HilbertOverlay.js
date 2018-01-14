@@ -9,6 +9,8 @@ export default class HilbertOverlay extends React.Component {
 	}
 
 	drawCanvas(canvas) {
+		if (!canvas) return
+
 		this.canvas = canvas
 
 		const size = (2**this.props.order)**2*2

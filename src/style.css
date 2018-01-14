@@ -200,3 +200,8 @@ canvas {
 .bar.bar-2 {
 	background: #0f0;
 }
+
+a.-disabled {
+	text-decoration: line-through;
+	opacity: 0.2;
+}

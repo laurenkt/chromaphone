@@ -8,7 +8,8 @@ export default class UI extends React.Component {
 		super(props)
 
 		this.state = {
-			focus: undefined
+			focus: undefined,
+			overlay: true,
 		}
 
 		this.focus = this.focus.bind(this)
@@ -48,7 +49,8 @@ export default class UI extends React.Component {
 	render() {
 		return <div className="ui">
 			<canvas ref={this.props.onViewportCanvasCreated} onClick={this.focus(undefined)}></canvas>
-			<HilbertOverlay order={this.props.hilbertCurveOrder} onClick={this.focus(undefined)} />
+			{this.state.overlay && 
+				<HilbertOverlay order={this.props.hilbertCurveOrder} onClick={this.focus(undefined)} />}
 			<this.Parameter name="sensitivity" min={1} max={100} />
 			<this.Parameter name="lightnessCompression" min={0} max={1000} />
 			<this.Parameter name="audioCompression" min={0} max={1000} />
@@ -62,7 +64,10 @@ export default class UI extends React.Component {
 			</this.Parameter>
 			<div className="menu">
 				<a href="#">&#x2714; Earcons</a>
-				<a href="#">&#x2714; Hilbert Overlay</a>
+				<a href="#"
+					className={this.state.overlay ? '-enabled' : '-disabled'}
+					onClick={e => { e.preventDefault(); this.setState({overlay: !this.state.overlay}) }}>
+					&#x2714; Overlay</a>
 				{this.state.focus != 'training' &&
 					<a href="#" onClick={this.focus('training')}>Training Videos</a>}
 				{this.state.focus == 'training' && 
