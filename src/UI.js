@@ -10,6 +10,7 @@ export default class UI extends React.Component {
 		this.state = {
 			focus: undefined,
 			overlay: true,
+			earcons: true,
 		}
 
 		this.earconPlayers = new Players({
@@ -21,8 +22,9 @@ export default class UI extends React.Component {
 			'colorVolume':          'assets/colorVolume.aac',
 		}).toMaster()
 
-		this.focus = this.focus.bind(this)
+		this.focus     = this.focus.bind(this)
 		this.Parameter = this.Parameter.bind(this)
+		this.Toggle    = this.Toggle.bind(this)
 	}
 
 	// Workaround to cause handles to render properly in React 16
@@ -36,14 +38,14 @@ export default class UI extends React.Component {
 			if (e.preventDefault)
 				e.preventDefault()
 
-			if (this.earconPlayers.has(key))
+			if (this.state.earcons && this.earconPlayers.has(key))
 				this.earconPlayers.get(key).start()
 
 			this.setState({focus: key})
 		}
 	}
 	
-	Parameter({name, min, max, children, ...props}) {
+	Parameter({name, min, max, children, tooltip, ...props}) {
 		return <Slider
 			{...props}
 			className={`slider ${this.state.focus == name && '-focus'}`}
@@ -54,8 +56,17 @@ export default class UI extends React.Component {
 			max={max}
 			onChange={this.state.focus == name ? this.props.onChange(name) : this.focus(name)}>
 			{children ||
-				<span>{Math.floor(100* ((this.props[name]-min) / (max-min)))}%</span>}
+				<span data-tooltip={tooltip}>{Math.floor(100* ((this.props[name]-min) / (max-min)))}%</span>}
 		</Slider>
+	}
+
+	Toggle({name, children}) {
+		return <a
+			href="#"
+			className={this.state[name] ? '-enabled' : '-disabled'}
+			onClick={e => { e.preventDefault(); this.setState({[name]: !this.state[name]}) }}>
+			{this.state[name] && <span>&#x2714;</span> || <span>&#x2718;</span>} {children}
+		</a>
 	}
 
 	render() {
@@ -63,23 +74,20 @@ export default class UI extends React.Component {
 			<canvas ref={this.props.onViewportCanvasCreated} onClick={this.focus(undefined)}></canvas>
 			{this.state.overlay && 
 				<HilbertOverlay order={this.props.hilbertCurveOrder} onClick={this.focus(undefined)} />}
-			<this.Parameter name="sensitivity" min={1} max={100} />
-			<this.Parameter name="lightnessCompression" min={0} max={1000} />
-			<this.Parameter name="audioCompression" min={0} max={1000} />
+			<this.Parameter name="sensitivity" tooltip="Sensitivity" min={1} max={100} />
+			<this.Parameter name="lightnessCompression" tooltip="Lightness Normalisation" min={0} max={1000} />
+			<this.Parameter name="audioCompression" tooltip="Compression" min={0} max={1000} />
 			<this.Parameter name="hilbertCurveOrder" min={1} max={6}>
-				<span>{this.props.hilbertCurveOrder}</span>
+				<span data-tooltip="Hilbert Curve Order">{this.props.hilbertCurveOrder}</span>
 			</this.Parameter>
-			<this.Parameter name="colorVolume" min={0} max={1000} />
+			<this.Parameter name="colorVolume" tooltip="Colour Volume" min={0} max={1000} />
 			<this.Parameter name="freqRange" min={1} max={1000} pearling minDistance={10}>
-				<span>{Math.round(10**(1+(this.props.freqRange[0]/1000)*3))}Hz</span>
-				<span>{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
+				<span data-tooltip="Minimum Hz">{Math.round(10**(1+(this.props.freqRange[0]/1000)*3))}Hz</span>
+				<span data-tooltip="Maximum Hz">{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
 			</this.Parameter>
 			<div className="menu">
-				<a href="#">&#x2714; Earcons</a>
-				<a href="#"
-					className={this.state.overlay ? '-enabled' : '-disabled'}
-					onClick={e => { e.preventDefault(); this.setState({overlay: !this.state.overlay}) }}>
-					&#x2714; Overlay</a>
+				<this.Toggle name="earcons">Earcons</this.Toggle>
+				<this.Toggle name="overlay">Overlay</this.Toggle>
 				{this.state.focus != 'training' &&
 					<a href="#" onClick={this.focus('training')}>Training Videos</a>}
 				{this.state.focus == 'training' && 

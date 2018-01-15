@@ -9,7 +9,7 @@ body {
 	padding: 0;
 	font-family: sans-serif;
 	font-size: 13pt;
-	line-height: 1.6;
+	line-height: 1.4;
 	background: black;
 	max-width: 1600px;
 	box-sizing: border-box;
@@ -204,4 +204,14 @@ canvas {
 a.-disabled {
 	text-decoration: line-through;
 	opacity: 0.2;
+}
+
+.handle:hover span::after {
+	position: absolute;
+	top: 90px;
+	left: -60px;
+	color: white;
+	font-weight: bold;
+	content: attr(data-tooltip);
+	width: 200px;
 }
