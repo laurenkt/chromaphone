@@ -1,6 +1,8 @@
 import Tone from 'tone'
 import generateStereoHilbertCurveOfSize from './hilbertCurve.js'
 
+window.Tone = Tone
+
 export default class PCMSonifier {
 	constructor(buffer_size) {
 		// Private

@@ -1,7 +1,7 @@
 import React          from 'react'
 import HilbertOverlay from './HilbertOverlay.js'
 import Slider         from 'react-slider'
-
+import {Players}      from 'tone'
 
 export default class UI extends React.Component {
 	constructor(props) {
@@ -11,6 +11,15 @@ export default class UI extends React.Component {
 			focus: undefined,
 			overlay: true,
 		}
+
+		this.earconPlayers = new Players({
+			'sensitivity':          'assets/sensitivity.aac',
+			'freqRange':            'assets/freqRange.aac',
+			'hilbertCurveOrder':    'assets/hilbertCurveOrder.aac',
+			'lightnessCompression': 'assets/lightnessNormalisation.aac',
+			'audioCompression':     'assets/compression.aac',
+			'colorVolume':          'assets/colorVolume.aac',
+		}).toMaster()
 
 		this.focus = this.focus.bind(this)
 		this.Parameter = this.Parameter.bind(this)
@@ -26,6 +35,9 @@ export default class UI extends React.Component {
 		return e => { 
 			if (e.preventDefault)
 				e.preventDefault()
+
+			if (this.earconPlayers.has(key))
+				this.earconPlayers.get(key).start()
 
 			this.setState({focus: key})
 		}
