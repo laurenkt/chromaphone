@@ -215,3 +215,7 @@ a.-disabled {
 	content: attr(data-tooltip);
 	width: 200px;
 }
+
+.-invisible {
+	visibility: hidden;
+}

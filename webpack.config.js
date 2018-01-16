@@ -23,9 +23,9 @@ module.exports = {
 				}
 			},
 			{
-				test: /\.csv$/,
+				test: /\.aac/,
 				use: {
-					loader: 'dsv-loader'
+					loader: 'url-loader'
 				}
 			}
 		]

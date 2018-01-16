@@ -10,6 +10,7 @@ export default class VideoSource {
 		this._video.autoplay    = true
 		this._video.playsinline = true
 		this._video.loop        = true
+		this._video.controls    = true
 		document.querySelector('body').appendChild(this._video)
 
 		// Public properties
@@ -26,13 +27,14 @@ export default class VideoSource {
 		this._length  = opts.length
 
 		this._video.onplaying = () => {
-			console.log('Playing starting')
-			// Scale into two rectangles to make Hilbert Curve easier to compute
-			this.resize(this._length)
-			this._context = this._canvas.getContext('2d')
-			this._bufferContext = this._bufferCanvas.getContext('2d')
-			// 30fps, sufficient for most video
-			setInterval(this.nextFrame.bind(this), 33)
+			if (this._context == null) {
+				// Scale into two rectangles to make Hilbert Curve easier to compute
+				this.resize(this._length)
+				this._context = this._canvas.getContext('2d')
+				this._bufferContext = this._bufferCanvas.getContext('2d')
+				// 30fps, sufficient for most video
+				setInterval(this.nextFrame.bind(this), 33)
+			}
 		}
 
 		this.setMode('camera')

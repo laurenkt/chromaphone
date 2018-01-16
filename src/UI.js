@@ -3,6 +3,14 @@ import HilbertOverlay from './HilbertOverlay.js'
 import Slider         from 'react-slider'
 import {Players}      from 'tone'
 
+// Load audio files
+import audioSensitivity from '../assets/sensitivity.aac'
+import audioFreqRange   from '../assets/freqRange.aac'
+import audioHCOrder     from '../assets/hilbertCurveOrder.aac'
+import audioLightNorm   from '../assets/lightnessNormalisation.aac'
+import audioCompression from '../assets/compression.aac'
+import audioColorVol    from '../assets/colorVolume.aac'
+
 export default class UI extends React.Component {
 	constructor(props) {
 		super(props)
@@ -11,15 +19,16 @@ export default class UI extends React.Component {
 			focus: undefined,
 			overlay: true,
 			earcons: true,
+			sliders: true,
 		}
 
 		this.earconPlayers = new Players({
-			'sensitivity':          'assets/sensitivity.aac',
-			'freqRange':            'assets/freqRange.aac',
-			'hilbertCurveOrder':    'assets/hilbertCurveOrder.aac',
-			'lightnessCompression': 'assets/lightnessNormalisation.aac',
-			'audioCompression':     'assets/compression.aac',
-			'colorVolume':          'assets/colorVolume.aac',
+			'sensitivity':          `${audioSensitivity}`,
+			'freqRange':            `${audioFreqRange}`,
+			'hilbertCurveOrder':    `${audioHCOrder}`,
+			'lightnessCompression': `${audioLightNorm}`,
+			'audioCompression':     `${audioCompression}`,
+			'colorVolume':          `${audioColorVol}`,
 		}).toMaster()
 
 		this.focus     = this.focus.bind(this)
@@ -48,8 +57,7 @@ export default class UI extends React.Component {
 	Parameter({name, min, max, children, tooltip, ...props}) {
 		return <Slider
 			{...props}
-			className={`slider ${this.state.focus == name && '-focus'}`}
-			defaultValue={this.props[name]}
+			className={`slider ${this.state.focus == name && '-focus'} ${!this.state.sliders && '-invisible'}`}
 			value={this.props[name]}
 			step={1}
 			min={min}
@@ -64,7 +72,11 @@ export default class UI extends React.Component {
 		return <a
 			href="#"
 			className={this.state[name] ? '-enabled' : '-disabled'}
-			onClick={e => { e.preventDefault(); this.setState({[name]: !this.state[name]}) }}>
+			onClick={e => {
+				e.preventDefault();
+				this.setState({[name]: !this.state[name]})
+				setTimeout(() => this.forceUpdate(), 1)
+			}}>
 			{this.state[name] && <span>&#x2714;</span> || <span>&#x2718;</span>} {children}
 		</a>
 	}
@@ -86,6 +98,7 @@ export default class UI extends React.Component {
 				<span data-tooltip="Maximum Hz">{Math.round(10**(1+(this.props.freqRange[1]/1000)*3))}Hz</span>
 			</this.Parameter>
 			<div className="menu">
+				<this.Toggle name="sliders">Sliders</this.Toggle>
 				<this.Toggle name="earcons">Earcons</this.Toggle>
 				<this.Toggle name="overlay">Overlay</this.Toggle>
 				{this.state.focus != 'training' &&
