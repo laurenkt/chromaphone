@@ -1,52 +1,56 @@
 import Tone from 'tone'
 import generateStereoHilbertCurveOfSize from './hilbertCurve.js'
 
-window.Tone = Tone
-
 export default class PCMSonifier {
 	constructor(buffer_size) {
-		// Private
+		// Internal buffers where visual features are tracked
 		this.buffers = {
 			// 128x128 seems more than sufficient
 			hue:        new Float32Array(16384),
 			saturation: new Float32Array(16384),
 			lightness:  new Float32Array(16384),
 		}
+
+		// Freq bandwidth for main synthesiser
 		this.upperHz = 1800
 		this.lowerHz = 40
-
-		this._scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
-		this._source = new Tone.Source().connect(this._scriptNode)
+		// What is the current sample number?  (used to determine time passed)
 		this._sample = 0
+		// Volume of colour synthesiser
 		this.fmVolume = 0
 
-		this.scaleL = new Tone.Scale().connect(new Tone.Panner(-1).toMaster())
-		this.scaleR = new Tone.Scale().connect(new Tone.Panner( 1).toMaster())
-		this.distortionL = new Tone.Distortion(0).connect(this.scaleL)
-		this.distortionR = new Tone.Distortion(0).connect(this.scaleR)
-		this.sawtoothNodeL = new Tone.Oscillator(440, 'sawtooth6').connect(this.distortionL).start()
-		this.sawtoothNodeR = new Tone.Oscillator(440, 'sawtooth6').connect(this.distortionR).start()
+		// Used for compression to determine how much to expand the signal
+		this.maxLoudness = 0
 
-		// Public
+		// External buffers used to set a target value to aim for
 		this.targets = {
 			hue:        new Float32Array(16384),
 			saturation: new Float32Array(16384),
 			lightness:  new Float32Array(16384),
 		}
 
-		this.maxLoudness = 0
-
-		// For debugging
-		window.targets = this.targets
-
-		// Set-up
-		this._filterNode = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
+		// Set-up audio pathway
+		const scriptNode = Tone.context.createScriptProcessor(1024, 1, 2)
+		const source = new Tone.Source().connect(scriptNode).start()
+		//
+		// These are modulated so must be tracked in the object
+		this.scaleL = new Tone.Scale().connect(new Tone.Panner(-1).toMaster())
+		this.scaleR = new Tone.Scale().connect(new Tone.Panner( 1).toMaster())
+		this.distortionL = new Tone.Distortion(0).connect(this.scaleL)
+		this.distortionR = new Tone.Distortion(0).connect(this.scaleR)
+		this.sawtoothNodeL = new Tone.Oscillator(440, 'sawtooth6').connect(this.distortionL).start()
+		this.sawtoothNodeR = new Tone.Oscillator(440, 'sawtooth6').connect(this.distortionR).start()
+		this.filterNode = new Tone.Filter(this.upperHz, 'lowpass', -48).toMaster()
 		this.resize(buffer_size)
-		this._scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
-		this._scriptNode.connect(this._filterNode)
 
+		// Register PCM emitter 
+		scriptNode.onaudioprocess = this.readBufferProcessEvent.bind(this)
+		scriptNode.connect(this.filterNode)
 	}
 
+	/**
+	 * Recalculated the frequency table between two given frequency
+	 */
 	setFrequencyBounds(lower, upper) {
 		this.upperHz = upper
 		this.lowerHz = lower
@@ -57,15 +61,21 @@ export default class PCMSonifier {
 		for (let i = 0; i < half; i++) {
 			this._frequencies[i] = 2*Math.PI*(lower*(upper/lower)**(i/half))
 		}
-		this._filterNode.frequency.set(this._frequencies[half-1])
+		this.filterNode.frequency.set(this._frequencies[half-1])
 	}
 
+	/**
+	 * Calculate a new Hilbert Curve with this many points
+	 */
 	resize(buffer_size) {
 		this._bufferSize = buffer_size
 		this._hilbert    = generateStereoHilbertCurveOfSize(buffer_size)
 		this.setFrequencyBounds(this.lowerHz, this.upperHz)
 	}
 
+	/**
+	 * PCM processing callback, audio data generated here
+	 */
 	readBufferProcessEvent(e) {
 		let l = e.outputBuffer.getChannelData(0)
 		let r = e.outputBuffer.getChannelData(1)
@@ -120,7 +130,7 @@ export default class PCMSonifier {
 			count_hueR = 0,
 			average_satL = 0,
 			average_satR = 0
-		// Central 'quarter'
+		// Only look at the central quarter of the image for colour detection
 		for (let idx = 0; idx < half/4; idx++) {
 			average_satL += saturations[       idx+half/4+half/8]
 			average_satR += saturations[half + idx+half/4+half/8]
@@ -134,6 +144,7 @@ export default class PCMSonifier {
 			}
 		}
 
+		// Modulate frequency for hue
 		if (count_hueL > 0) { 
 			average_hueL = average_hueL/count_hueL
 			this.sawtoothNodeL.frequency.value = average_hueL * 1320 + 440
@@ -144,11 +155,8 @@ export default class PCMSonifier {
 			this.sawtoothNodeR.frequency.value = average_hueR * 1320 + 440
 		}
 
+		// And distortion and amplitude for saturation
 		this.distortionL.distortion = this.scaleL.max = (average_satL/(half/4)) * this.fmVolume
 		this.distortionR.distortion = this.scaleR.max = (average_satR/(half/4)) * this.fmVolume
-	}
-
-	start() {
-		this._source.start()
 	}
 }

@@ -1,6 +1,9 @@
 import React from 'react'
 import generateStereoHilbertCurveOfSize from './hilbertCurve.js'
 
+/**
+ * Draws a Hilbert Curve on-screen
+ */
 export default class HilbertOverlay extends React.Component {
 	constructor(props) {
 		super(props)
@@ -9,21 +12,26 @@ export default class HilbertOverlay extends React.Component {
 	}
 
 	drawCanvas(canvas) {
-		if (!canvas) return
+		// Sometimes this is invoked without a DOM element to draw to. Abort.
+		if (!canvas)
+			return
 
+		// Track the last used canvas to reference when a force-redraw is needed
 		this.canvas = canvas
 
+		// Number of pixels
 		const size = (2**this.props.order)**2*2
 
-		const w    = canvas.width = 3840
-		const h    = canvas.height = 2160
+		// Use a huge image and scale down, looks better
+		const w = canvas.width  = 3840
+		const h = canvas.height = 2160
 
 		const curve = generateStereoHilbertCurveOfSize(size)
 		const ctx   = canvas.getContext('2d')
 		ctx.strokeStyle = 'white'
 		ctx.lineWidth   = 4
 
-		const width = Math.sqrt(size/2)
+		const width   = Math.sqrt(size/2)
 		const xbuffer = (w / width)
 		const ybuffer = (h / width)
 
@@ -37,6 +45,10 @@ export default class HilbertOverlay extends React.Component {
 
 		ctx.clearRect(0, 0, w, h)
 		ctx.beginPath()
+
+		/*
+		 * Do the same drawing for both sides
+		 */
 
 		for(let i = 0; i < curve.length / 2 -1; i++) {
 			const x = k => (toX(k) / (width-1)) * (w/2 - xbuffer/2) + xbuffer/4,

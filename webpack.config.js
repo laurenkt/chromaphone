@@ -9,8 +9,6 @@ module.exports = {
 	},
 	// Don't bundle these into the output
 	externals: {
-		//lodash: '_',
-		//d3: 'd3',
 	},
 	// Load any js files through babel for polyfills etc
 	module: {

@@ -1,5 +1,9 @@
+// Cache to avoid unnecessary recalculations
 let memoise = {}
 
+/**
+ * Generates a Hilbert Curve mapping for a given number of pixels
+ */
 export default function generateStereoHilbertCurveOfSize(size) {
 	// Don't bother computing it if it's been done before
 	if (memoise[size])

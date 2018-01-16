@@ -14,16 +14,20 @@ export default class App extends React.Component {
 		// Track common parameters
 		this.state = {
 			hilbertCurveOrder:    2,
-			sensitivity:          100,
-			freqRange:            [1, 1000],
-			lightnessCompression: 0,
-			audioCompression:     0.5,
-			colorVolume:          100,
+			sensitivity:          90,
+			freqRange:            [200, 800],
+			lightnessCompression: 100,
+			audioCompression:     400,
+			colorVolume:          0,
 		}
 
-		this.sonifier    = new PCMSonifier(this.getBufferLength(this.state.hilbertCurveOrder))
-		this.sonifier.setFrequencyBounds(this.logScale(this.state.freqRange[0]), this.logScale(this.state.freqRange[1]))
-		this.videoSource = undefined
+		// Initialize sonifier with a certain buffer length
+		this.sonifier = new PCMSonifier(this.getBufferLength(this.state.hilbertCurveOrder))
+		this.sonifier.setFrequencyBounds(
+			this.logScale(this.state.freqRange[0]),
+			this.logScale(this.state.freqRange[1])
+		)
+
 		this.onChange = this.onChange.bind(this)
 	}
 
