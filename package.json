@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./dist; mkdir dist && cpx src/{index.html,style.css} dist && webpack",
+    "build": "rm -rf ./docs; mkdir -p docs && cpx \"src/{index.html,style.css}\" docs && webpack",
     "start": "webpack-dev-server --open --disable-host-check",
-    "watch": "rm -rf ./dist; webpack && (cpx \"src/{index.html,style.css}\" dist --watch &) && (cpx \"assets/*\" dist/assets --watch &) && npm start"
+    "watch": "rm -rf ./docs; webpack && (cpx \"src/{index.html,style.css}\" docs --watch &) && (cpx \"assets/*\" docs/assets --watch &) && npm start"
   },
   "author": "",
   "license": "UNLICENSED",
