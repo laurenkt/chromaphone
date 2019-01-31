@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./docs; mkdir -p docs && cpx \"src/{index.html,style.css}\" docs && webpack",
+    "build": "rm -rf ./docs; mkdir -p docs && cpx \"src/{index.html,style.css}\" docs && cpx \"assets/*\" docs/assets  && webpack",
     "start": "webpack-dev-server --open --disable-host-check",
     "watch": "rm -rf ./docs; webpack && (cpx \"src/{index.html,style.css}\" docs --watch &) && (cpx \"assets/*\" docs/assets --watch &) && npm start"
   },
